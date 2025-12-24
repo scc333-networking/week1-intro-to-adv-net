@@ -1,45 +1,55 @@
 # Introduction to Advanced Networking
-In this coursework, we will explore the different elements that make up a modern computer network and guide you through building and configuring your very own network.
 
-Think about your home network: you’ve got a Wi-Fi modem or router that connects your laptop, phone, TV, and maybe even your fridge (because why not) to the internet ([Figure 1](#home-topo)).
+## Lab Overview
+
+In this lab activity, we will explore the different elements that make up a modern computer network and guide you through building and configuring your very own network.
+
+ Think about your home network: you’ve got a Wi-Fi modem or router that connects your laptop, phone, TV, and maybe even your fridge (because why not) to the Internet ([Figure 1](#home-topo)). This appears to be a very simple network scenario, but it implements several key functionalities essential in delivering connectivity in the highly distributed and complex global Internet. 
 
 ![Typical Home Network Topology](.resources/home-topo.png "Typical Home Network Topology"){width="2in"}
 <!-- [home-topo]: home-topo.png "Typical Home Network Topology" -->
 
 But have you ever wondered:
+
 - How does your modem know which data belongs to which device?
 - How does it forward your Netflix traffic to the internet while sending a Zoom call to your laptop at the same time?
 - What magic is happening inside that little plastic box with too many blinking lights?
     
 Well… quite a lot!
 Your Wi-Fi modem is doing multiple jobs at once, such as:
-- Routing: deciding where packets should go
-- Switching: connecting devices inside your home network
-- Network Address Translation (NAT): letting many devices share one public IP
-- DNS Forwarding: helping translate website names into IP addresses
-- Firewalling: keeping unwanted traffic out
-By the end of this coursework, you’ll understand these components and even configure some of them yourself.
 
-# Tools you will use
+- *Routing*: deciding where packets should go
+- *Switching*: connecting devices inside your home network
+- *Network Address Translation (NAT)*: letting many devices share one public IP
+- *DNS Forwarding*: helping translate website names into IP addresses
+- *Firewalling*: keeping unwanted traffic out
+  
+This lab activity will help you to recreate these functionalities in a lab machine/VM, understand how these components work and even configure some of them yourself. For this activity we will emulate a home network scenario, connecting to a small set of Internet services. This will remind you how different protocols are used to connect devices to the global Internet and get you up to speed with some of the key technologies we will use this year to explore advance network topics in the module labs.
 
-This coursework uses a combination of powerful tools designed for learning and experimenting with networks:
-- Mininet
-    - Used to create virtual network topologies
-    - Allows you to instantiate hosts, switches, and links
-    - Ideal for testing and experimenting in a contained environment
-- P4
-    - A protocol-independent language for programming how packets are processed
-    - Lets you define custom behaviour inside routers and switches
-    - Open-source, high-level, and used widely in software-defined networking research
-- Python
-    - The interactive language used to script Mininet and P4 interactions
-    - Great for automation, controller development, and quickly testing network logic
+### Key Learning Objectives
+
+By the end of this lab activity, you will be able to:
+
+- [ ] Understand the key components of a home network and their functions
+- [ ] Use Mininet to create and experiment with virtual network topologies
+- [ ] Capture and analyze network traffic using Wireshark
+- [ ] Refresh you knowledge on network protocols and packet structures
+
+### Lab tools
+
+During our labs we will use a combination of tools designed for recreating, visualising and experimenting with networks:
+
+- [Mininet](https://mininet.org/) is a network emulator that creates a realistic virtual network on a single machine. It uses lightweight virtualization to run multiple hosts, switches, and links, all within a single Linux host. We will use Mininet to recreate virtual network topologies with real Linux hosts, switches, and links. Mininet is ideal for reproducible network testing and experimentation, using common virtualisation technologies available in the Linux kenrel. 
+- [P4](https://p4.org/) is the latest generation of open Software Defined Network technologies. It is a protocol-independent language for programming how packets are processed by a network device. With P4, you can define custom behaviours inside routers and switches, while network vendors, like Intel and Barefoot, provide hardware that can run P4 programs at line rate (Tbps data processing rates). We will explore this technology in more detail in the Week 12 lecture and labs.
+- [Wireshark](https://www.wireshark.org/) is a network protocol analyzer that lets you capture and inspect packets in real-time. It provides a graphical interface to view packet details, filter traffic, and analyze network protocols. We will use Wireshark to observe and analyze the traffic flowing through our emulated networks and understand how protocols work under the hood.
+- [Python](https://www.python.org/) will be used to script Mininet topologies and to implement custom P4 control logic. You should be familiar with basic Python programming concepts, from modules like SCC.231.  We will use Python scripts to automate network configurations and experiments. If you want to refresh your Python skills, consider checking out resources like [Future Coder](https://futurecoder.io/).
 
 # Understanding the Functionality of a Home Wi-Fi Modem
 
 As mentioned, a home wifi modem consists of multiple separate components that perform different functions. Most home networks follow a star topology, where multiple devices connect to a central Wi-Fi modem — just like the one shown in [Figure 1](#home-topo).
 
 Although it looks simple from the outside, your home router is quietly multitasking like a networking superhero. It:
+
 - Manages wireless connections
 - Acts as a Layer 2 switch for wired devices
 - Performs routing between your home network (LAN) and the internet (WAN)
@@ -56,8 +66,9 @@ To gain deeper insight into how each of these components works, we will disaggre
 
 We will begin by exploring Mininet by creating a simple topology with a single switch and using it to understand how a switch operates.
 
-# Task 0: Opening the Dev Container
-This is the first time you will need to work exclusively within the devcontainer environment. Mininet and Wireshark require root priviledges to execute certain commands, and the devcontainer is pre-configured to allow you to run these commands without any additional setup.
+## Task 0: Opening the Dev Container
+
+Working with network protocols on a host, requires a lot of configuration and tweak ing of the host operating system. We also need to run code as root, which is a major security threat and requires careful handling. To make your life easier, we use a technologies called containers, to package everything you need to run our lab activities in a pre-configured environment. You might have heard of Docker containers, which are lightweight, portable, and consistent virtual instances that can run applications and services.
 
 In order to open the code in a devcontainer, you should select the options `Open In devcontainer` when opening the folder in VSCode. If you missed the option when openning the project, you can still setup the devcontainer. Use the key combination of Ctrl+Shift+P to open the command palette and then select **Dev Containers: Open Folder in Container...**. Both options are depicted in the screenshots below.
 
@@ -69,41 +80,54 @@ If you have opened correctly the devcontainer, you should see the following prom
 
 ![Figure 5: Devcontainer terminal prompt](.resources/devcontainer-prompt.png){width="5in"}
 
+## Task 1: Working with mininet
 
-# Task 1: Working with mininet
-<!-- How to use mininet -->
-**NOTE**: Run the command `xhost +` in a terminal on your lab machine (i.e., *not* in the devcontainer or a host in the mininet topology, a terminal on the actual lab machine) before starting Wireshark or xterm in the devcontainer. This command allows GUI applications running inside the devcontainer to be displayed on your host machine.
+Before we discuss how to use Mininet to emulate a switch, let's first remind our selves the concept of layering in computer networks. Computer network technologies, in order to manage complexity and scalablity, adopt layering and abstraction as a mechanism to separate different functionalities. Each layer is responsible for a specific set of tasks and provides services to the layer above it while relying on the services of the layer below it. This separation allows for easier design, implementation, and troubleshooting of network protocols and devices.
 
-## What is Mininet?
-Mininet is a powerful network emulator that allows you to create and test virtual network topologies on a single machine. It uses lightweight virtualization to run multiple hosts, switches, and links, all within a single Linux host. This makes it an ideal tool for learning about networking concepts, testing network applications, and experimenting with network protocols. Each host behaves like a real machine, capable of running TCP/IP stacks, executing real programs (web servers, ping, iperf, SSH), and having its own network addresses and interfaces.
+The TCP/IP model, a key stack of protocols used exclusively in the Internet, considers five networks layers:
 
-## What is a Switch and what does it do?
-A switch operates at Layer 2 (the Data Link layer) of the OSI model. Its main role is to connect multiple devices to each other using physical Ethernet links.
+1. *Physical Layer*: This layer deals with the physical transmission of data over a medium, such as cables or wireless signals. It defines the electrical and mechanical aspects of data transmission (e.g. how do you represent a single bit using an electric current).
+2. *Data Link Layer*: This layer is responsible for node-to-node data transfer and error detection/correction. The functionalities include framing, forwarding and addressing (using MAC addresses). The data link layer ensures that two nodes on the same network can communicate effectively and Ethernet is a common protocol used at this layer.
+3. *Network Layer*: This layer handles the routing of data packets across different networks. It determines the best path for data to travel from the source to the destination. It uses logical addressing (IP addresses) to identify devices on the network and protocols like IP (Internet Protocol) operate at this layer. 
+4. *Transport Layer*: This layer provides end-to-end communication control, ensuring complete data transfer. It manages error recovery, flow control, and segmentation of data. The transport layer only works between two end systems (hosts) and does not involve intermediate devices like routers or switches. Common protocols at this layer include TCP (Transmission Control Protocol) and UDP (User Datagram Protocol).
+5. *Application Layer*: This layer provides network services directly to user applications. It includes protocols for email, file transfer, and other network software services.
 
-Instead of blindly broadcasting data to every device, a switch behaves intelligently. It reads MAC addresses and forwards packets only to the correct destination, improving speed and efficiency.
+### Introduction to Ethernet and Ethernet Switches
 
-The MAC layer (also called the Ethernet layer) forms the outermost layer of a network packet within a local network. This is the layer the switch examines to decide where each packet should go.
+Ethernet is the most widely used technology for local area networks (LANs). It defines a set of standards for wiring and signaling at the physical layer, as well as data link layer protocols for framing and addressing. Ethernet uses MAC (Media Access Control) addresses to uniquely identify devices on a network. The Ethernet header is the first part of every network packet and contains important information for delivering the packet to its destination within a local network. It typically contains an address of the sender and the receiver of the packet, as well as a type field that indicates the protocol of the payload (e.g., IPv4, IPv6, ARP).
 
-### 📨 Analogy: The Office Mailroom
+In order to connect multiple devices within a local network, Ethernet requires specisal devices that can multiplex traffic between several cables. Originally, network hubs were the first attempt to achieve this. Hubs rebroadcast traffic received on a Ethernet cable, to all cables connected to the devive. Because hubs blindly reatrnsmit traffic, they are inefficient and insecure as they blindly broadcasted incoming packets to all connected devices. To improve efficiency and performance, Ethernet switches were introduced. Instead of blindly broadcasting data to every device, a switch uses an algorithm to learn the MAC addresses of devices connected to each port. It reads MAC addresses and forwards packets only to the correct destination, improving speed and efficiency.
+
+#### 📨 Analogy: The Office Mailroom
+
 Think of a switch like an office mailroom:
+
 - Every employee has a desk number (MAC address)
 - The mailroom reads the desk number on each envelope
 - Mail is delivered only to the correct desk, not to everyone
 
 This is exactly how a switch ensures packets reach the right device.
 
-## How Do We Use Mininet to Reproduce the Functionality of a Switch?
-In this part of the coursework, we will focus on the highlighted component of the home Wi-Fi modem topology discussed earlier — the switch — as shown in [Figure 6](#home-topo-highlight). 
-With mininet, we can reproduce this in two ways, using the command line or using python scripts. We will explore both one by one.
-Mininet allows us to recreate real network behaviour in software, making it the perfect tool for experimenting without needing physical hardware. Using Mininet, we can build a simple network where multiple hosts are connected to a switch and observe how packets are forwarded between them.
+### What is Mininet?
+
+<!-- How to use mininet -->
+> **NOTE**: Run the command `xhost +` in a terminal on your lab machine (i.e., *not* in the devcontainer or a host in the mininet topology, a terminal on the actual lab machine) before starting Wireshark or xterm in the devcontainer. This command allows GUI applications running inside the devcontainer to be displayed on your host machine.
+
+Mininet is a powerful network emulator that allows you to create and test virtual network topologies on a single machine. It uses lightweight virtualization to run multiple hosts, switches, and links, all within a single Linux host. This makes it an ideal tool for learning about networking concepts, testing network applications, and experimenting with network protocols. Each host behaves like a real machine, capable of realisticallt running network programs (web servers, ping, iperf, SSH), and having its own network addresses and interfaces.
+
+### How Do We Use Mininet to Reproduce the Functionality of a Switch?
+
+In this part of the coursework, we will focus on the highlighted component of the home Wi-Fi modem topology discussed earlier — the switch — as shown in [Figure 6](#home-topo-highlight).  With mininet, we can reproduce this in two ways, using the command line or using python scripts. We will explore both one by one.  Mininet allows us to recreate real network behaviour in software, making it the perfect tool for experimenting without needing physical hardware. Using Mininet, we can build a simple network where multiple hosts are connected to a switch and observe how packets are forwarded between them.
+
 There are two main ways to create this topology in Mininet:
+
 - Using the Mininet Command Line Interface (CLI)
-    - Quick and easy
-    - Great for learning, testing, and experimenting
+  - Quick and easy
+  - Great for learning, testing, and experimenting
 - Using Python Scripts
-    - More flexible and powerful
-    - Allows automation and repeatable experiments
-    - Commonly used for larger or more complex topologies
+  - More flexible and powerful
+  - Allows automation and repeatable experiments
+  - Commonly used for larger or more complex topologies
 
 ![Figure 6: Typical Home Network Topology - focus Switch](.resources/home-topo-switch-focus.png){width="5in"}
 
@@ -112,6 +136,7 @@ We will explore both approaches step by step, starting with the command line and
 By the end of this section, you’ll be comfortable creating a basic switch-based topology and observing how data flows through it — just like in a real network.
 
 ### Quick Start: Switches with the Mininet CLI
+
 Lets load using Mininet a simple topology on our devcontainer environment consisting of two hosts connected to a single switch. Open a terminal in the devcontainer and run the following command in the VSCode terminal. The command executes Mininet, creates the topology and give you access to the Mininet terminal from which you can run multiple commands.
 
 ```bash

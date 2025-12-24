@@ -1,5 +1,5 @@
 ---
-title: "SCC.333 (Week X) - Introduction to Networking"
+title: "SCC.333 (Week 1) - Introduction to Networking"
 colorlinks: true
 ---
 
