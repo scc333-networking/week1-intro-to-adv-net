@@ -4,7 +4,7 @@
 
 In this lab activity, we will explore the different elements that make up a modern computer network and guide you through building and configuring your very own network.
 
- Think about your home network: you’ve got a Wi-Fi modem or router that connects your laptop, phone, TV, and maybe even your fridge (because why not) to the Internet ([Figure 1](#home-topo)). This appears to be a very simple network scenario, but it implements several key functionalities essential in delivering connectivity in the highly distributed and complex global Internet. 
+Think about your home network: you’ve got a Wi-Fi modem or router that connects your laptop, phone, TV, and maybe even your fridge (because why not) to the Internet ([Figure 1](#home-topo)). This appears to be a very simple network scenario, but it implements several key functionalities essential in delivering connectivity in the highly distributed and complex global Internet. 
 
 ![Typical Home Network Topology](.resources/home-topo.png "Typical Home Network Topology"){width="2in"}
 <!-- [home-topo]: home-topo.png "Typical Home Network Topology" -->
