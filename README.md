@@ -310,7 +310,7 @@ In the previous task, we extended our Mininet topology to include a router and t
 
 NAT is a technique that allows multiple devices in a private network to share a single public IP address when accessing the Internet. It works by modifying the source IP address and port number of outgoing packets from devices in the private network to the public IP address and a unique port number assigned by the router. When the response packets return from the Internet, the router translates the destination IP address and port number back to the original private IP address and port number of the device that initiated the request.
 
-The Linux operating system provides built-in support for NAT through the use of iptables, a powerful firewall and packet filtering tool. To enable NAT on the router host in our Mininet topology, we need to configure iptables to perform source NAT (SNAT) for outgoing packets from the home network to the Internet services.
+The Linux OS provides built-in support for NAT through the use of iptables, a powerful firewall and packet filtering tool. To enable NAT on the router host in our Mininet topology, we need to configure iptables to perform source NAT (SNAT) for outgoing packets from the home network to the Internet services.
 
 You can enable NAT on the router host by running the following commands in the Mininet CLI:
 
@@ -321,4 +321,4 @@ mininet> router iptables -t nat -A POSTROUTING -o router-eth2 -j MASQUERADE
 
 These commands add rules to the NAT table in iptables that specify that outgoing packets on interfaces `router-eth1` and `router-eth2` should have their source IP address modified to the IP address of the respective interface (i.e., perform source NAT). The `MASQUERADE` target is used to automatically determine the appropriate source IP address based on the outgoing interface.
 
-> **Your task**: After enabling NAT on the router, test connectivity from the home network hosts to the Internet services by running the following commands in the Mininet CLI:
+> **Your task**: After enabling NAT on the router, test connectivity from the home network hosts to the Internet networks, answer the questions in the final part of the [Week1 Unassessed Quiz](https://modules.lancaster.ac.uk/mod/quiz/view.php?id=2824281).
