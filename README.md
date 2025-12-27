@@ -162,7 +162,7 @@ Each host in the network will have a set of network interfaces and a network con
 
 > **TODO**: Using now the created topology, answer the questions in the [Week1 Unassessed Quiz](https://modules.lancaster.ac.uk/mod/quiz/view.php?id=2824281).
 
-### Automation: Switch Topologies with Python
+### Mininet Python Scripting 
 
 Mininet offers a Python API to create topologies. The lab template provides you with a very basic topology file (`./topology.py`) that, through Mininet, will produce an emulated network consisting of 2 host connected via two seperate links to a switch ([Figure 8](#topology)). But what exactly does all that mean?
 
@@ -175,27 +175,61 @@ There are 3 fundamental components to a Mininet topology: *Hosts*, *Switches* an
 The topology in the lab template code defines a custom class that extends the `Topo` class in Mininet. This class contains the logic to create the nodes and links that make up the topology. The documentation for the `Topo` class can be found [here](http://mininet.org/api/classmininet_1_1topo_1_1Topo.html), and it allows to add each of these components via the `addHost`, `addSwitch` and `addLink` methods. We will discuss these methods in more detail in Stage 4 and we will use them to implement custom topologies.
 
 
-| **Method**                      | **Description**                                                           |
-| ------------------------------- | ------------------------------------------------------------------------- |
-| `addHost(name, ip=None, default=None, **opts)`         | Adds a host to the topology with the given name. You can optionally set an IP address for the first interface, define a default route for the host, as well as control other options.              |
-| `addSwitch(name, **opts)`       | Adds a switch to the topology with the given name and options. Mininet offers a range of different switch types, such as Open vSwitch, Linux Bridge, and user-space switches, which can be specified through options. For this lab we will use the Linux Bridge switch (`lxbr`) and we will replace the switch class with a P4 switch in later activities.           |
-| `addLink(node1, node2, intf1=None, intf2=None, params1=None, params2=None, **opts)` | Adds a link between two nodes (hosts or switches) with the given options. |
-|                                 |
+| **Method**                                                                          | **Description**                                                                                                                                                                                                                                                                                                                                            |
+| ----------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `addHost(name, ip=None, default=None, **opts)`                                      | Adds a host to the topology with the given name. You can optionally set an IP address for the first interface, define a default route for the host, as well as control other options.                                                                                                                                                                      |
+| `addSwitch(name, **opts)`                                                           | Adds a switch to the topology with the given name and options. Mininet offers a range of different switch types, such as Open vSwitch, Linux Bridge, and user-space switches, which can be specified through options. For this lab we will use the Linux Bridge switch (`lxbr`) and we will replace the switch class with a P4 switch in later activities. |
+| `addLink(node1, node2, intf1=None, intf2=None, params1=None, params2=None, **opts)` | Adds a link between two nodes (hosts or switches) with the given options. The param1 and param2 options accept a dictionary containing configuration for the interfaces created in each host to support the link. For example, a dictionary params1={'ip': '10.20.0.5/24', 'mac': '00:00:00:00:00:01'} will set the interface IP address to 10.20.0.5 and the MAC address to the values 00:00:00:00:00:01 for node1. The intf1 and intf2 define the name for the interfaces. |
+|                                                                                     |
 
 As you might have guessed, the provided topology file generates the same topology as the one created by the command `mn --topo single,2 --mac --switch lxbr --controller none`. To run the provided topology, execute the following command in a terminal:
 
 ```bash
-mn --custom ./topology.py --link tc --topo tutorialTopology --mac --switch lxbr --controller none --arp
+mn --custom ./topology.py --link tc --topo simple --mac --switch lxbr --controller none --arp
 ```
 
 This command tells Mininet to use the custom topology defined in `topology.py` and to create a network with the specified parameters. Once the topology is created, you should see the Mininet prompt again. You can use the same commands as before to inspect the network and test connectivity between the hosts.
 
-### Questions 
+> Hint: Since the mn command is quite long, we have created a Makefile to simplify the process of running the topology. Make is an automation tool that can execute commands defined in a file called `Makefile`. To run the provided topology using the Makefile, simply execute the command `make topo` in a terminal within the devcontainer. This will run the same mn command as above. If you face any issues, we also provide a `make clean` command to clean up any Mininet state from previous runs.
 
+![Figure 9: Home Network topology - switch focus](.resources/homenet-switch.png){width="5in"}
 
-## Task 2: Testing the functionality of a switch in Mininet
+> **Your task**: Modify the provided topology file to recreate the topology in Figure 9. Your topology file should define all the necessary hosts with the correct names and IP adddresses, connected to the switch via seperate links. One you complete your code, run the modified topology using the `mn --custom` command above and answer the questions in the second part of the [Week1 Unassessed Quiz](https://modules.lancaster.ac.uk/mod/quiz/view.php?id=2824281).
 
-### Introduction to Ethernet and Ethernet Switches
+## Task 2: Inspecting Traffic with Wireshark and Mininet
+
+Computer networks are packet-oriented, *i.e.* data is sent across the network in small chunks called packets. You can imagine a packet as a small, self-contained parcel carrying information across the vast landscape of the Internet.
+
+Unlike circuit switched technologies, e.g. telephone networks, where a continuous stream of data is transmitted, the Internet relies on a concept known as packet switching. In this paradigm, large volumes of data are broken down into manageable pieces or "packets" before being sent across the network. Each packet, akin to an organised postcard, contains the actual data and essential information such as the source and destination addresses (i.e., IP addresses).
+
+As these packets traverse the network, they follow diverse routes to reach their destination. This dynamic approach enhances efficiency and robustness, as multiple packets can travel concurrently without relying on a fixed path. Upon reaching their destination, the packets are reassembled, reconstructing the original message or data.
+
+### How can you view incoming and outgoing packets on your computer?
+
+A **packet sniffer** is the basic tool for observing incoming and outgoing packets by capturing ("sniffs") messages being sent and received from or by your computer; it will also typically parse, store and display the contents of the various protocol fields in these captured messages. A packet sniffer is passive: it observes messages being sent and received by applications and protocols running on your computer but never sends packets.  Similarly, received packets are never explicitly addressed to the packet sniffer. Instead, a packet sniffer gets a *copy* of packets sent or received from/by application and protocols executing on your machine.
+
+Figure 8 shows the structure of a packet sniffer. At the right of Figure 8 are the protocols (in this case, Internet protocols) and applications (such as a web browser or email client) that usually run on your computer. The packet sniffer, shown within the dashed rectangle in Figure 8, is an addition to the usual software in your computer and consists of two parts:
+
+![Figure 9: Packet sniffer structure](.resources/packet-sniffer.jpg){width="4.325937226596675in"
+height="1.703124453193351in"}
+
+* The **packet capture library** receives a copy of every packet that is sent from or received by your computer over a given interface (e.g., Ethernet card or Wi-Fi). As discussed above, messages exchanged by protocols such as HTTP (to be covered on Thursday of Week 12) are eventually encapsulated in packets that are transmitted over physical media such as an Ethernet cable or a Wi-Fi radio. Capturing the packets thus gives you all the messages sent/received from/by all the applications executing on your computer.
+
+* The second component of a packet sniffer is the **packet analyser**, which displays the contents of all fields within a protocol message.  To do so, the packet analyser must "understand" the structure of all messages exchanged by protocols. For example, suppose we are interested in displaying the various fields in messages exchanged by the HTTP protocol in Figure 1. The packet analyser understands the format of Ethernet frames and can identify the IP datagram within an Ethernet frame. It also understands the IP datagram format, so that it can extract the TCP segment within the IP datagram.
+
+Finally, it understands the TCP segment structure, so it can extract the HTTP message contained in the TCP segment. Finally, it understands the HTTP protocol and so, for example, knows that the first bytes of an HTTP message will contain the string "GET," "POST," or "HEAD," as shown later in Figure 5 below.
+
+In 333 labs, we will use the [Wireshark packet sniffer](http://www.wireshark.org/)  to display the contents of messages being sent/received from/by protocols at different levels of the protocol stack. (Technically speaking, Wireshark is a packet analyser that uses a packet capture library on your computer).
+
+Also, technically speaking, Wireshark captures link-layer frames as shown in Figure 1, but uses the generic term "packet" to refer to link-layer frames, network-layer datagrams, transport-layer segments, and application-layer messages, so we'll use the less-precise "packet" term here to go along with Wireshark convention). Wireshark is a free network protocol analyser that runs on Windows, Mac, and Linux/Unix computers. 
+  
+To run Wireshark on a host in your Mininet topology, you first must use the `xterm` command from the Mininet CLI to open a terminal window for the host, and then run Wireshark from that terminal. Start a wireshark application on host `homePC` and start sniffing packets on interface `homePC-eth0` (the only interface of host `homePC`), by clicking on the interface name in the list of available interfaces. You should start seeing packets being captured in real-time (predominantly you will observer ICMPv6 packets). Congratulations, you are now capturing packets on a host in your Mininet topology!
+
+Let now generate some traffic between the two hosts in your topology. From the Mininet CLI, run the command `homePC ping -c 5 tablet` to send 5 ICMP echo requests from host `homePC` to host `tablet`. You should see the corresponding ICMP packets appearing in Wireshark on host `homePC`. You can stop the packet capture in Wireshark by clicking on the red square button in the toolbar. The main Wireshark window should now display all the captured packets, along with details such as the source and destination IP addresses, protocol type, and packet length, by selecting individual packets. The captured packets should contain multiple protocol headers, as a result of network layers (typically, Ethernet -> IPv4 -> UDP/TCP).
+
+> **Your task**: By inspecting the captured packets, answer the questions in the third part of the [Week1 Unassessed Quiz](https://modules.lancaster.ac.uk/mod/quiz/view.php?id=2824281).
+
+## Task 3: Understanding Ethernet and Switching
 
 Ethernet is the most widely used technology for local area networks (LANs). It defines a set of standards for wiring and signaling at the physical layer, as well as data link layer protocols for framing and addressing. Ethernet uses MAC (Media Access Control) addresses to uniquely identify devices on a network. The Ethernet header is the first part of every network packet and contains important information for delivering the packet to its destination within a local network. It typically contains an address of the sender and the receiver of the packet, as well as a type field that indicates the protocol of the payload (e.g., IPv4, IPv6, ARP).
 
@@ -211,212 +245,80 @@ Think of a switch like an office mailroom:
 
 This is exactly how a switch ensures packets reach the right device.
 
+A learning switch operates by maintaining a MAC address table that maps MAC addresses to specific switch ports. When a frame arrives at the switch, it examines the source MAC address and records which port it came from in its MAC address table. This way, the switch learns where each device is located on the network. Furthermore, the switch looks at the destination MAC address of the incoming frame. If the destination MAC address is found in the MAC address table, the switch forwards the frame only to the port associated with that MAC address. If the destination MAC address is not found in the table, the switch floods the frame out of all ports except the one it arrived on, ensuring that it reaches its intended recipient.
+
+Linux uses the term *bridge* to describe a software-based switch. In Mininet, when we create a switch using the `lxbr` switch type, we are essentially creating a Linux bridge that functions as a learning switch. The Linux bridge will learn MAC addresses and forward frames in the same way as a physical Ethernet switch.
+
+In order to inspect the MAC table of a Linux bridge, you can use the `bridge` CLI tool. For example, to view the MAC address table of a switch named `s1`, you can run the following command in the Mininet prompt `s1 bridge fdb show br s1`. You can also flush the MAC address table using the command `s1 bridge fdb flush br s1`.
 
 ### Verifying Switch Functionality with Wireshark
 
-In order to make sure that our switch is working properly, we need to make sure that our hosts can communicate with each other. In the previous task, we used two different ways to bring up a small part of the home network topology. in this task, we will establish and ensure connectivity between those components. This can be done by examining the traffic between the two hosts.
+Let's now open a Wireshark instance on host `h2` and start capturing packets on interface `h2-eth0`. Once Wireshark is running, go back to the Mininet CLI and run the command `h1 ping -c 5 h2` to send 5 ICMP echo requests from host `h1` to host `h2`. You should not see the corresponding ICMP packets appearing in Wireshark on host `h2`. This happens because the switch has learned the MAC addresses of both hosts and is forwarding packets only to the correct destination. Run now on the Mininet terminal the command `s1 bridge fdb flush br s1` and repeat the ping command from `h1` to `h2`. This time, you should see **one** ICMP packets appearing in Wireshark on host `h2`, as the switch has flushed its MAC address table and is flooding the packets to all ports. MAC addresses are relearned by the switch as packets are sent between the hosts. In parallel, a timeout value is associated with each entry in the MAC address table, so that if no packets are received from a device for a certain period of time, the entry is removed from the table.
 
-We can observe the sequence of messages exchanged between two protocol entities, delve down into the details of protocol operation, and cause protocols to perform certain actions and then observe these actions and their consequences. For this stage, we will use the popular network protocol analyzer Wireshark to capture and interactively browse the traffic running on a computer network.
+> **Your task**: Using the provided topology, answer the questions in the fourth part of the [Week1 Unassessed Quiz](https://modules.lancaster.ac.uk/mod/quiz/view.php?id=2824281).
 
-In computer networks, a packet serves as a fundamental unit of data that facilitates communication between devices. In the next section, we will leartn about packets.
+## Task 4: IPv4 and Routing
 
-## What is a packet?
+In the previous tasks, we explored how devices communicate within a local network using Ethernet and switches. However, to connect to devices outside our local network, such as accessing websites on the Internet, we need to understand how data is routed between different networks. This is where the Internet Protocol (IP) comes into play.
 
-You can imagine a packet as a small, self-contained parcel carrying information across the vast landscape of the Internet.
+In the global Internet, hosts are grouped into separate networks, each identified by a unique network address. To communicate with hosts in other networks, data packets must be routed through intermediary devices called routers. Routers use IP addresses to determine the best path for forwarding packets to their destination. During the SCC.231 module, you learned about IPv4 addressing and subnetting, which are essential concepts for understanding how routing works, as well as experienced the use of routing protocols such as OSPF and BGP, to dynamicaly learn and exchange routing information between routers.
 
-Unlike traditional methods where a continuous stream of data is transmitted, the Internet relies on a concept known as packet switching. In this paradigm, large volumes of data are broken down into manageable pieces or "packets" before being sent across the network. Each packet, akin to an organised postcard, contains the actual data and essential information such as the source and destination addresses (i.e., IP addresses).
+### Adding "Internet" services to our Mininet Topology
 
-As these packets traverse the network, they follow diverse routes to reach their destination. This dynamic approach enhances efficiency and robustness, as multiple packets can travel concurrently without relying on a fixed path. Upon reaching their destination, the packets are reassembled, reconstructing the original message or data.
+![Figure 10: Home Network Topology with Internet Services](.resources/homenet-router.png){width="5in"}
 
-## How can you view incoming and outgoing packets on your computer?
+Lets now extend our Mininet topology to include a router and two Internet services, as shown in [Figure 10](#homenet-router). The router will connect our home network to the Internet services, allowing hosts in the home network to communicate with these services. The two Internet services will be represented by two additional hosts in the Mininet topology, each running a simple web server. You also need to add a couple of new switches (`s2` and `s3`) as well as a new host (`router`) to interconnect the home network with the Internet services. The `router` host will represent the router funcitonality of the home router, forwarding packets between the home network and the Internet services. You will need to configure IP addresses on all interfaces and set up routing on the `router` host to enable communication between the home network and the Internet services.
 
-A **packet sniffer** is the basic tool for observing incoming and outgoing packets. As the name suggests, a packet sniffer captures ("sniffs") messages being sent and received from or by your computer; it will also typically store and display the contents of the various protocol fields in these captured messages. A packet sniffer is passive: it observes messages being sent and received by applications and protocols running on your computer but never sends packets.  Similarly, received packets are never explicitly addressed to the packet sniffer. Instead, a packet sniffer gets a *copy* of packets sent or received from/by application and protocols executing on your machine.
+In order to support the routing functionality, the provide topology.py file contains a new class called `Router` that extends the `Host` class in Mininet. This class configures IP forwarding on the host, allowing it to forward packets between its interfaces. You can use this class to create the `router` host in your topology. You can create a new `router` host in your topology using the following code snippet:
 
-Figure 8 shows the structure of a packet sniffer. At the right of Figure 8 are the protocols (in this case, Internet protocols) and applications (such as a web browser or email client) that usually run on your computer. The packet sniffer, shown within the dashed rectangle in Figure 8, is an addition to the usual software in your computer and consists of two parts:
-
-![Figure 9: Packet sniffer structure](.resources/packet-sniffer.jpg){width="4.325937226596675in"
-height="1.703124453193351in"}
-
-* The **packet capture library** receives a copy of every packet that is sent from or received by your computer over a given interface (e.g., Ethernet card or Wi-Fi). As discussed above, messages exchanged by protocols such as HTTP (to be covered on Thursday of Week 12) are eventually encapsulated in packets that are transmitted over physical media such as an Ethernet cable or a Wi-Fi radio. Capturing the packets thus gives you all the messages sent/received from/by all the applications executing on your computer.
-
-* The second component of a packet sniffer is the **packet analyser**, which displays the contents of all fields within a protocol message.  To do so, the packet analyser must "understand" the structure of all messages exchanged by protocols. For example, suppose we are interested in displaying the various fields in messages exchanged by the HTTP protocol in Figure 1. The packet analyser understands the format of Ethernet frames and can identify the IP datagram within an Ethernet frame. It also understands the IP datagram format, so that it can extract the TCP segment within the IP datagram.
-
-Finally, it understands the TCP segment structure, so it can extract the HTTP message contained in the TCP segment. Finally, it understands the HTTP protocol and so, for example, knows that the first bytes of an HTTP message will contain the string "GET," "POST," or "HEAD," as shown later in Figure 5 below.
-
-In 333 labs, we will use the [Wireshark packet sniffer](http://www.wireshark.org/) for these labs, allowing us to display the contents of messages being sent/received from/by protocols at different levels of the protocol stack. (Technically speaking, Wireshark is a packet analyser that uses a packet capture library on your computer).
-
-Also, technically speaking, Wireshark captures link-layer frames as shown in Figure 1, but uses the generic term "packet" to refer to link-layer frames, network-layer datagrams, transport-layer segments, and application-layer messages, so we'll use the less-precise "packet" term here to go along with Wireshark convention). Wireshark is a free network protocol analyser that runs on Windows, Mac, and Linux/Unix computers. It's an ideal packet analyser for our labs -- it is stable, has a large user base and well-documented support that includes:
-
-* a [user guide](http://www.wireshark.org/docs/wsug_html_chunked/)
-* a [man pages](http://www.wireshark.org/docs/man-pages/)
-* a [detailedFAQ](http://www.wireshark.org/faq.html)
-* Rich functionality that includes the capability to analyze hundreds of protocols, and a well-designed user interface. 
-  
-It operates in computers using Ethernet, serial (PPP), 802.11 (WiFi) wireless LANs, and many other link-layer technologies.
-
-### Part 0: Running Wireshark
-
-> **NOTE**: Run the command `xhost +` in a terminal on your lab machine (i.e., *not* in the devcontainer or a host in the mininet topology, a terminal on the actual lab machine) before starting Wireshark or xterm in the devcontainer. This command allows GUI applications running inside the devcontainer to be displayed on your host machine.
-
-You can start Wireshark on a the node h1 of your topology by open an xterm (i.e., `> xterm h1`) and then entering the command `wireshark` in the terminal.
-
-![Figure 10: Running wireshark from the SCC.333 DevContainer.](.resources/mininet-wireshark.png){width="3.158688757655293in"
-height="2.0781244531933507in"}
-
-When you run the Wireshark program, you'll get a startup screen that looks like the one below. Different versions of Wireshark will have different startup screens -- so don't panic if yours doesn't look exactly like the screen below! The Wireshark documentation states "As Wireshark runs on many different platforms with many different window managers, different styles applied and there are different versions of the underlying GUI toolkit used, your screen might look different from the provided screenshots. But as there are no real differences in functionality these screenshots should still be well understandable." Well said.
-
-![Figure 11: Initial Wireshark Screen](.resources/wireshark-gui.png){width="4.875404636920385in" height="3.4843744531933507in"}
-
-There's not much that's very interesting on this screen. But note that under the Capture section, there is a list of so-called interfaces.  In the SCC 231 DevContainer we focus on one interface -- "h1-eth0", (shaded in blue in Figure 10) which is the interface for Ethernet access. All packets to/from this container will pass through the Ethernet interface, so it's here where we'll want to capture packets. Double-click on this interface to begin packet capture.
-
-Now let's take Wireshark out for a spin! If you click on one of these interfaces to start packet capture (i.e., for Wireshark to begin capturing all packets being sent to/from that interface), a screen like the one below will be displayed, showing information about the captured packets. Once you start packet capture, you can stop it by using the Capture pull- down menu and selecting Stop (or by clicking on the red square button next to the Wireshark fin in Figure 9). To test this, you can sent a few packets from host h1 to host h2 by running the command `h1 ping -c 5 h2`.
-
-![Figure 12: Wireshark window, during and after capture](.resources/wireshark-explain.jpg){width="6.6in" height="3.4in"}
-
-This looks more interesting! The Wireshark interface has five major components:
-
-* The **command menus** are standard pull-down menus located at the top of the Wireshark window (and on a Mac at the top of the screen as well; the screenshot in Figure 3 is from a Mac). Of interest to us now are the File and Capture menus. The File menu allows you to save captured packet data or open a file containing previously captured packet data and exit the Wireshark application. The Capture menu allows you to begin packet capture.
-* The **packet-listing window** displays a one-line summary for each packet captured, including the packet number (assigned by Wireshark; note that this is *not* a packet number contained in any protocol's header), the time at which the packet was captured, the packet's source and destination addresses, the protocol type, and protocol-specific information contained in the packet. The packet listing can be sorted according to any of these categories by clicking on a column name. The protocol type field lists the highest-level protocol that sent or received this packet, i.e., the protocol that is the source or ultimate sink for this packet.
-* The **packet-header details window** provides details about the packet selected (highlighted) in the packet-listing window. (To select a packet in the packet- listing window, place the cursor over the packet's one-line summary in the packet- listing window and click with the left mouse button.). These details include information about the Ethernet frame (assuming the packet was sent/received over an Ethernet interface) and IP datagram that contains this packet. The amount of Ethernet and IP-layer detail displayed can be expanded or minimized by clicking on the plus/minus boxes or right/downward-pointing triangles to the left of the Ethernet frame or IP datagram line in the packet details window. If the packet has been carried over TCP or UDP, TCP or UDP details will also be displayed, which can similarly be expanded or minimized. Finally, details about the highest-level protocol that sent or received this packet are also provided.
-* The **packet-contents window** displays the entire contents of the captured frame, in both ASCII and hexadecimal format.
-* Towards the top of the Wireshark graphical user interface, is the **packet display filter field,** into which a protocol name or other information can be entered in order to filter the information displayed in the packet-listing window (and hence the packet-header and packet-contents windows). In the example below, we'll use the packet-display filter field to have Wireshark hide (not display) packets except those that correspond to HTTP messages.
-
-
-# Task 3: Building your very own switch with P4!
-Before we dive into building our own switch, we need to take a closer look at packets — the fundamental units of communication in a network.
-As we saw using Wireshark, hosts within a network communicate by sending and receiving packets. Each packet is made up of multiple headers, stacked on top of one another, followed by the actual data (payload) being transmitted.
-Each header provides specific information about the packet, such as how it should be handled, where it’s coming from, and where it’s going. Understanding these headers is essential, because switches and routers rely on them to make forwarding decisions.
-
-``` 
-+-----------------------------+
-| Ethernet Header (MAC)       |  ← Used by switches
-+-----------------------------+
-| IP Header (IP Address)      |  ← Used by routers
-+-----------------------------+
-| TCP / UDP Header            |  ← Used by applications
-+-----------------------------+
-| Payload (Actual Data)       |  ← Message, file, video, etc.
-+-----------------------------+
+```python
+router = self.addHost('router', ip=None, cls=Router)
 ```
 
-## Packet headers
-A network packet is built in layers, where each layer adds its own header. Not every packet contains all headers, but when present, each one serves a specific purpose.
+> Hint: As the home router will have multiple interfaces, you should not assign an IP address when creating the host. we must need to set the `ip` parameter to `None` to prevent Mininet from assigning an IP address to the first interface of the host; you will assign IP addresses to all interfaces manually later using the addLink method and the `params1` or `params2` parameters.
 
-### Ethernet Header (Layer 2 – Data Link)
+> **Your task**: Modify the provided topology file to recreate the topology in Figure 10. Your topology file should define all the necessary hosts with the correct names and IP adddresses, connected to the appropriate switches via seperate links. 
 
-- Purpose: Local delivery within a network
-- Used by: Switches
-- Contains:
-    - Source MAC address – who sent the packet
-    - Destination MAC address – who should receive it next
-    - EtherType – indicates what protocol comes next (e.g., IPv4, IPv6, ARP)
+Your topology should also configure routing on the individual hosts, so they are aware to send packets destined for the Internet services via the `router` host. You can set the default route for each host using the `default` parameter of the `addHost` method. For example, to set the default route for host `homePC` to point to the router's interface in the home network, you can use the following code snippet:
 
-> ‼️ This header is rewritten at every hop as packets move between networks.
+```python
+homePC = self.addHost('homePC', ip='192.168.0.10/24', default='via 192.168.0.1')
+```
 
-### IP Header (Layer 3 – Network)
+In Linux, each host maintains a routing table that defines how packets should be forwarded based on their destination IP address. The routing table contains entries that specify the destination network, the next hop (router) to reach that network, and the interface to use for sending the packet. You can view the routing table of a host using the `ip route show` command.
 
-- Purpose: End-to-end delivery across networks
-- Used by: Routers
-- Contains:
-    - Source IP address
-    - Destination IP address
-    - Protocol field (TCP, UDP, ICMP, etc.)
-    - TTL (Time To Live) – prevents infinite looping
-    - Packet length & fragmentation info
+### IPv4 and Routing Refresher
 
-> ‼️ This header determines where the packet is going globally.
+IP addresses are hierarchical, and different operators will typically split the network into sub networks and , consisting of a network portion and a host portion. The network portion identifies the specific network, while the host portion identifies the individual device within that network. This hierarchical structure allows routers to efficiently forward packets based on the destination network. In the provided topology file, there are three network regions, were hosts can reach each other at the data link layer:
 
-### Transport Layer Header (Layer 4)
-This header contains information about how the packet is transmitted between applications on different hosts. It specifies the transport protocol being used (such as TCP or UDP) and includes the necessary details to manage communication, such as port numbers, delivery guarantees, and flow control.
-#### TCP Header (Transmission Control Protocol)
-- Purpose: Reliable, ordered delivery
-- Used by: Web browsing, email, file transfer
-- Contains:
-    - Source & destination port numbers
-    - Sequence & acknowledgment numbers
-    - Flags (SYN, ACK, FIN)
-    - Window size (flow control)
+* Home Network (192.168.0.0/24): homePC(homePC-eth0), tablet (tablet-eth0), phone (phone-eth0), router (router-eth0)
+* Cloud Network (10.10.0.0/16): cloud (cloud-eth0), router(router-eth1)
+* Web Network (10.0.0.0/16): web (web-eth0), router (router-eth2)
 
-> ‼️ TCP ensures no data is lost or reordered.
+Hosts in the same network are directly reachable in a region using either switches or direct links. In order though for traffic to travel across networks, we need a device called router. A router operates at the network layer of the TCP/IP protocol stack and forwards traffic between different networks. It is essential for a router to have an IP and an interface connected in every network. In our topology, host `router` must route traffic between the three networks and has already an IP address in each network.
 
-#### UDP Header (User Datagram Protocol)
-- Purpose: Fast, lightweight delivery
-- Used by: Video streaming, gaming, VoIP
-- Contains:
-    - Source & destination port numbers
-    - Packet length
-    - Checksum
+A router typically maintains a routing table that contains information about how to reach different networks. When a router receives a packet, it examines the destination IP address and consults its routing table to determine the best path for forwarding the packet. The router then forwards the packet to the next hop, which could be another router or the final destination host. Also, the router, similar to every network host, maintains an ARP table that maps IP addresses to MAC addresses for devices in each connected network. It is essential for the router to resolve MAC addresses for devices in each network to successfully forward packets at the data link layer. For this functionality, the router will use ARP requests to resolve MAC addresses for devices in each network. In our Mininet topology, we have opted to use an alternative approach by predefining the MAC addresses for each interface in the topology file and creating static entries in the ARP table. For this approach to work, we assume that the topology is fixed and we do not need to dynamically resolve MAC addresses using ARP requests.
 
-> ‼️ UDP is faster but does not guarantee delivery.
+IP addresses are 32-bit numbers that uniquely identify devices in a network. They are typically represented in dotted-decimal notation, which consists of four octets (8 bits each) separated by periods. Usually, IP addresses are split into two parts: the network and the host portion. The network  identifies the network to which the IP address belongs, while the host portion identifies the specific device on that network. The length of the network portion is defined by the subnet mask, which is a 32-bit number that specifies how many left-most bits of the IP address belong to the network portion and which bits belong to the host portion. The length of the network portion can also be  represented as an integer. The remaining bits are used for the host portion.
+For example, the IP address 192.168.1.1/24 has a subnet 255.255.255.0 (i.e., the 24 left-most bits are set to 1 and the rest is zero) and its network portion is 192.168.1.0/24. It is in the same network as 192.168.1.2/24 and 192.168.1.3/24, but not in the same network as 192.168.2.1/24, which has a network portion of 192.168.2.0/24. Similarly, the subnet mask 10.0.0.0/24 has a 24 bit network prefix length and the network contains the IP addresses from 10.0.0.1-10.0.0.254 ($2^8-2$) (typically the first and last address of a network range cannot be used as addresses for individual hosts). Similarly, the subnet mask 10.1.0.0/16 defines the IP addresses from 10.1.0.1-10.1.255.154 ($2^{16} -2$) as belonging to the same network.
 
-### ICMP Header (Control & Error Messages)
-- Purpose: Network diagnostics and errors
-- Used by: ping, traceroute
-- Contains:
-    - Type (e.g., echo request, destination unreachable)
-    - Code (error details)
+> **Your task**: One you complete your updated Mininet topology, run the modified topology using the `mn --custom` command above and answer the questions in the fifth part of the [Week1 Unassessed Quiz](https://modules.lancaster.ac.uk/mod/quiz/view.php?id=2824281).
 
-> ‼️ ICMP packets do not carry application data.
+## Task 5: Enabling NAT on the Router
 
-### Optional / Special Headers
-Optional or special headers are not present in every packet. They are added only when specific network features or services are required. These headers allow networks to provide advanced functionality beyond basic packet forwarding, without changing the core packet structure.
-#### VLAN Tag (802.1Q)
-- Used for network segmentation
-- Inserted between Ethernet header fields
-#### MPLS Header
-- Used in high-performance ISP networks
-- Enables fast packet forwarding using labels
-#### IPsec Headers
-- Used for encryption and authentication
-- Common in VPNs
+In the previous task, we extended our Mininet topology to include a router and two Internet services. The router allowed hosts in the home network to communicate with these services by forwarding packets between different networks. However, in a real-world scenario, home networks typically use private IP addresses that are not routable on the public Internet. To enable communication between devices in a private network and the public Internet, we need to implement Network Address Translation (NAT) on the router.
 
-### Application Layer Data (Payload)
-- Purpose: Actual user data
-- Examples:
-    - HTTP request
-    - Video stream
-    - File contents
-    - DNS query
+NAT is a technique that allows multiple devices in a private network to share a single public IP address when accessing the Internet. It works by modifying the source IP address and port number of outgoing packets from devices in the private network to the public IP address and a unique port number assigned by the router. When the response packets return from the Internet, the router translates the destination IP address and port number back to the original private IP address and port number of the device that initiated the request.
 
-> ‼️  Network devices usually do not inspect this, unless deep packet inspection is enabled.
+The Linux operating system provides built-in support for NAT through the use of iptables, a powerful firewall and packet filtering tool. To enable NAT on the router host in our Mininet topology, we need to configure iptables to perform source NAT (SNAT) for outgoing packets from the home network to the Internet services.
 
-<!-- ## Analogy: Sending a Letter
-Think of a packet like mailing a letter:
-- Ethernet header → Office mailroom instructions
-- IP header → City and street address
-- TCP/UDP header → Delivery instructions (urgent or careful)
-- Payload → The letter itself
+You can enable NAT on the router host by running the following commands in the Mininet CLI:
 
-Each network device only reads the part it cares about! -->
+```bash
+mininet> router iptables -t nat -A POSTROUTING -o router-eth1 -j MASQUERADE
+mininet> router iptables -t nat -A POSTROUTING -o router-eth2 -j MASQUERADE
+```
 
-## Why This Matters for P4 & SDN
-Normally, switches and routers are like robots with fixed instructions:
-> “I only understand Ethernet, IP, TCP… don’t ask me to do anything else.”
-P4 changes that.
+These commands add rules to the NAT table in iptables that specify that outgoing packets on interfaces `router-eth1` and `router-eth2` should have their source IP address modified to the IP address of the respective interface (i.e., perform source NAT). The `MASQUERADE` target is used to automatically determine the appropriate source IP address based on the outgoing interface.
 
-With P4, you get to say:
->“Hey switch, this is what a packet looks like, this is how I want you to read it, and this is what I want you to do with it.”
-
-### In other words:
-P4 = Programming Your Network Like a Game Character
-- You define what headers exist
-- You define how packets are processed
-- You define what actions to take
-- You control the rules of the game
-
-### Why P4 Is Cool?
-- You’re not stuck with predefined protocols
-- You can build custom routers and switches
-- You get full control over packet forwarding logic
-
-### Analogy: A Custom Recipe
-Traditional networking is like ordering from a fixed menu.
-
-P4 lets you write your own recipe:
-- Choose the ingredients (packet headers)
-- Decide how to cook them (packet processing)
-- Decide who gets served (forward, drop, modify)
-
-## Getting started with P4
-
-
+> **Your task**: After enabling NAT on the router, test connectivity from the home network hosts to the Internet services by running the following commands in the Mininet CLI:
