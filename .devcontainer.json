@@ -3,23 +3,13 @@
   "image": "scc-registry.lancs.ac.uk/teaching/scc_333/ken:25.1.2",
   "workspaceMount": "source=${localWorkspaceFolder}/,target=/workspace,type=bind,consistency=cached",
   "workspaceFolder": "/workspace",
-  "postCreateCommand": "sh -c /scripts/entrypoint.sh",
+  "postCreateCommand": "bash -c /scripts/entrypoint.sh",
   "privileged": true,
   "containerEnv": {
-     "DISPLAY": "${localEnv:DISPLAY}",
+     "DISPLAY": "${localEnv:DISPLAY}"
   },
   "mounts": [
     "source=/tmp/.X11-unix,target=/tmp/.X11-unix,type=bind,consistency=cached"
-  ],
-  "runArgs": [
-    "-e",
-    "DISPLAY=docker.for.mac.host.internal:0"
-    // "-e",
-    // "DISPLAY=docker.for.mac.host.internal:0",
-    // "-e",
-    // "XAUTHORITY=/tmp/.Xauthority",
-    // "-v",
-    // "${localEnv:HOME}/.Xauthority:/tmp/.Xauthority"
   ],
   "customizations": {
     "vscode": {

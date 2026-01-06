@@ -19,6 +19,8 @@ class LabTopology(Topo):
 		tablet = self.addHost("tablet", ip="192.168.1.3/24")
 		phone = self.addHost("phone", ip="192.168.1.4/24")
 
+		
+
 		# Connect hosts to the switch
 		self.addLink(homePC, s1)
 		self.addLink(tablet, s1)
