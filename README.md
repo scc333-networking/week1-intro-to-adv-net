@@ -8,7 +8,7 @@ In this lab activity, we will explore the different elements that make up a mode
 
 Think about your home network: you’ve got a Wi-Fi modem or router that connects your laptop, phone, TV, and maybe even your fridge (because why not) to the Internet ([Figure 1](#home-topo)). This appears to be a very simple network scenario, but it implements several key functionalities essential in delivering connectivity in the highly distributed and complex global Internet. 
 
-![Typical Home Network Topology](.resources/home-topo.png "Typical Home Network Topology"){width="2in"}
+![Internet view with a focus on the home network](.resources/internet-view.png "Typical Internet network view"){width="2in"}
 <!-- [home-topo]: home-topo.png "Typical Home Network Topology" -->
 
 Have you ever wondered:
@@ -245,6 +245,8 @@ This is exactly how a switch ensures packets reach the right device.
 
 A learning switch operates by maintaining a MAC address table that maps MAC addresses to specific switch ports. When a frame arrives at the switch, it examines the source MAC address and records which port it came from in its MAC address table. This way, the switch learns where each device is located on the network. Furthermore, the switch looks at the destination MAC address of the incoming frame. If the destination MAC address is found in the MAC address table, the switch forwards the frame only to the port associated with that MAC address. If the destination MAC address is not found in the table, the switch floods the frame out of all ports except the one it arrived on, ensuring that it reaches its intended recipient.
 
+![Figure : Learning switch in practice.](.resources/learning-switch.gif "Switch Learning Process")
+
 Linux uses the term *bridge* to describe a software-based switch. In Mininet, when we create a switch using the `lxbr` switch type, we are essentially creating a Linux bridge that functions as a learning switch. The Linux bridge will learn MAC addresses and forward frames in the same way as a physical Ethernet switch.
 
 In order to inspect the MAC table of a Linux bridge, you can use the `bridge` CLI tool. For example, to view the MAC address table of a switch named `s1`, you can run the following command in the Mininet prompt `s1 bridge fdb show br s1`. You can also flush the MAC address table using the command `s1 bridge fdb flush br s1`.
@@ -255,7 +257,7 @@ Let's now open a Wireshark instance on host `h2` and start capturing packets on 
 
 > **Your task**: Using the provided topology, answer the questions in the fourth part of the [Week1 Unassessed Quiz](https://modules.lancaster.ac.uk/mod/quiz/view.php?id=2824281).
 
-## Task 4: IPv4 and Routing
+## Task 4: Understadning IPv4 and Routing
 
 In the previous tasks, we explored how devices communicate within a local network using Ethernet and switches. However, to connect to devices outside our local network, such as accessing websites on the Internet, we need to understand how data is routed between different networks. This is where the Internet Protocol (IP) comes into play.
 
@@ -301,9 +303,22 @@ IP addresses are 32-bit numbers that uniquely identify devices in a network. The
 
 For example, the IP address 192.168.1.1/24 has a subnet 255.255.255.0 (i.e., the 24 left-most bits are set to 1 and the rest is zero) and its network portion is 192.168.1.0/24. It is in the same network as 192.168.1.2/24 and 192.168.1.3/24, but not in the same network as 192.168.2.1/24, which has a network portion of 192.168.2.0/24. Similarly, the subnet mask 10.0.0.0/24 has a 24 bit network prefix length and the network contains the IP addresses from 10.0.0.1-10.0.0.254 ($2^8-2$) (typically the first and last address of a network range cannot be used as addresses for individual hosts). Similarly, the subnet mask 10.1.0.0/16 defines the IP addresses from 10.1.0.1-10.1.255.154 ($2^{16} -2$) as belonging to the same network.
 
+The routing table of each host contains entries that define how packets should be forwarded based on their destination IP address. Each entry in the routing table typically consists of the following fields:
+
+* Destination Network: The network address of the destination network.
+* Subnet Mask: The subnet mask that defines the size of the destination network.
+* Next Hop: The IP address of the next hop (router) to reach the destination network.
+* Interface: The network interface to use for sending the packet.
+
+You can inspect your routing table on each host in your Mininet topology using the `ip route show` command. For example, to view the routing table of host `homePC`, you can run the following command in the Mininet prompt:
+
+```bash
+mininet> homePC ip route show
+```
+
 > **Your task**: One you complete your updated Mininet topology, run the modified topology using the `mn --custom` command above and answer the questions in the fifth part of the [Week1 Unassessed Quiz](https://modules.lancaster.ac.uk/mod/quiz/view.php?id=2824281).
 
-## Task 5: Enabling NAT on the Router
+## Task 5: Understanding NAT on the Router
 
 In the previous task, we extended our Mininet topology to include a router and two Internet services. The router allowed hosts in the home network to communicate with these services by forwarding packets between different networks. However, in a real-world scenario, home networks typically use private IP addresses that are not routable on the public Internet. To enable communication between devices in a private network and the public Internet, we need to implement Network Address Translation (NAT) on the router.
 
