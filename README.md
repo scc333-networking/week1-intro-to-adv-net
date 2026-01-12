@@ -2,13 +2,13 @@
 
 
 
-In this lab activity, we will explore the different elements that make up a modern computer network and guide you through building and configuring your very own network. By using a simple scenario of a home network, we will dissect the different protocols and functionalities that connect your network devices to the Internet and understand how they interoperate to provide connectivity.
+In this lab activity, we will explore the different elements that make up a modern computer network and guide you through building and configuring your very own network. Using a simple home network scenario, we will dissect the protocols and functionalities that connect your network devices to the Internet and understand how they interoperate to provide connectivity.
 
 ## Lab Overview
 
 Think about your home network: you’ve got a Wi-Fi modem or router that connects your laptop, phone, TV, and maybe even your fridge (because why not) to the Internet ([Figure 1](#home-topo)). This appears to be a very simple network scenario, but it implements several key functionalities essential in delivering connectivity in the highly distributed and complex global Internet. 
 
-![Internet view with a focus on the home network](.resources/internet-view.png "Typical Internet network view"){width="2in"}
+![Figure1: Internet view with a focus on the home network](.resources/internet-view.png "Typical Internet network view"){#home-topo width="2in"}
 <!-- [home-topo]: home-topo.png "Typical Home Network Topology" -->
 
 Have you ever wondered:
@@ -25,37 +25,37 @@ Have you ever wondered:
 - *DNS Forwarding*: helping translate website names into IP addresses
 - *Firewalling*: keeping unwanted traffic out
   
-This lab activity will help you to recreate these functionalities in a lab machine/VM using a network emulator, understand how these components work and even configure some of them yourself. For this activity, we will emulate a home network scenario, connecting to a small set of Internet services. This will remind you how different protocols are used to connect devices to the global Internet and get you up to speed with some of the key technologies we will use this year to explore advance network topics in the module labs.
+This lab activity will help you recreate these functionalities on a lab machine/VM using a network emulator, understand how these components work, and even configure some of them yourself. For this activity, we will emulate a home network scenario connected to a small set of Internet services. This will remind you of the different protocols used to connect devices to the global Internet and get you up to speed on some of the key technologies we will use this year to explore advanced network topics in the module labs.
 
 By the end of this lab activity, you will be able to:
 
 - [ ] Understand the key components of a home network and their functions
 - [ ] Use Mininet to create and experiment with virtual network topologies
-- [ ] Capture and analyze network traffic using Wireshark
-- [ ] Refresh you knowledge on network protocols and packet structures
+- [ ] Capture and analyse network traffic using Wireshark
+- [ ] Refresh your knowledge on network protocols and packet structures
 
 ### Lab tools
 
-During our labs we will use a combination of tools designed for recreating, visualising and experimenting with networks:
+During our labs, we will use a combination of tools designed for recreating, visualising and experimenting with networks:
 
-- [Mininet](https://mininet.org/) is a network emulator that creates a realistic virtual network on a single machine. It uses lightweight virtualization to run multiple hosts, switches, and links, all within a single Linux host. We will use Mininet to recreate virtual network topologies with real Linux hosts, switches, and links. Mininet is ideal for reproducible network testing and experimentation, using common virtualisation technologies available in the Linux kenrel. 
-- [P4](https://p4.org/) is the latest generation of open Software Defined Network technologies. It is a protocol-independent language for programming how packets are processed by a network device. With P4, you can define custom behaviours inside routers and switches, while network vendors, like Intel and Barefoot, provide hardware that can run P4 programs at line rate (Tbps data processing rates). We will explore this technology in more detail in the Week 12 lecture and labs.
-- [Wireshark](https://www.wireshark.org/) is a network protocol analyzer that lets you capture and inspect packets in real-time. It provides a graphical interface to view packet details, filter traffic, and analyze network protocols. We will use Wireshark to observe and analyze the traffic flowing through our emulated networks and understand how protocols work under the hood.
-- [Python](https://www.python.org/) will be used to script Mininet topologies and to implement custom P4 control logic. You should be familiar with basic Python programming concepts, from modules like SCC.231.  We will use Python scripts to automate network configurations and experiments. If you want to refresh your Python skills, consider checking out resources like [Future Coder](https://futurecoder.io/).
+- [Mininet](https://mininet.org/) is a network emulator that creates a realistic virtual network on a single machine. It uses lightweight virtualisation to run multiple hosts, switches, and links, all within a single Linux host. We will use Mininet to recreate virtual network topologies with real Linux hosts, switches, and links. Mininet is ideal for reproducible network testing and experimentation, using common virtualisation technologies available in the Linux kernel. 
+- [P4](https://p4.org/) is the latest generation of open Software Defined Network technologies. It is a protocol-independent language for programming how packets are processed by a network device. With P4, you can define custom behaviours in routers and switches, while network vendors such as Intel and Barefoot provide hardware that can run P4 programs at line rate (Tbps data processing rates). We will explore this technology in more detail in the Week 12 lecture and labs.
+- [Wireshark](https://www.wireshark.org/) is a network protocol analyser that lets you capture and inspect packets in real-time. It provides a graphical interface for viewing packet details, filtering traffic, and analysing network protocols. We will use Wireshark to inspect the traffic flowing through our emulated networks and understand how protocols work under the hood.
+- [Python](https://www.python.org/) will be used to script Mininet topologies and to implement custom P4 control logic. You should be familiar with basic Python programming concepts, such as those in modules like SCC.231.  We will use Python scripts to automate network configurations and experiments. If you want to refresh your Python skills, consider checking out resources like [Future Coder](https://futurecoder.io/).
 
 ## Task 0: Opening the Dev Container
 
-Working with network protocols on a host, requires a lot of configuration and tweaking of the host operating system. We also need to run code as root, which is a major security threat and requires careful handling. To make your life easier, we use a technology called containers, to package everything you need to run our lab activities in a pre-configured environment. You might have heard of Docker containers, which are lightweight, portable, and consistent virtual instances that can run applications and services.
+Working with network protocols on a host requires extensive configuration and tuning of the host operating system. We also need to run code as root, which is a major security threat and requires careful handling. To make your life easier, we use container technology to package everything you need to run our lab activities in a preconfigured environment. You might have heard of Docker containers, which are lightweight, portable, and consistent virtual instances that can run applications and services.
 
-In order to open the code in a devcontainer, you should select the options `Open In devcontainer` when opening the folder in VSCode. If you missed the option when openning the project, you can still setup the devcontainer. Use the key combination of Ctrl+Shift+P to open the command palette and then select **Dev Containers: Open Folder in Container...**. Both options are depicted in the screenshots below.
+In order to open the code in a devcontainer, you should select the option `Open In devcontainer` when opening the folder in VSCode. If you missed the option when opening the project, you can still set up the devcontainer. Use the key combination of Ctrl+Shift+P to open the command palette and then select **Dev Containers: Open Folder in Container...**. Both options are depicted in the screenshots below.
 
-![Figure 3: Open devcontainer from popup](.resources/devcontainer-open-boot.png){width="5in"}
+![Figure 2: Open devcontainer from popup](.resources/devcontainer-open-boot.png){width="5in"}
 
-![Figure 4: Open devcontainer from action menu](.resources/devcontainer-menu.png){width="5in"}
+![Figure 3: Open devcontainer from action menu](.resources/devcontainer-menu.png){width="5in"}
 
-If you have opened correctly the devcontainer, you should see the following prompt when opening a new terminal in VSCode:
+If you have opened the devcontainer correctly, you should see the following prompt when opening a new terminal in VSCode:
 
-![Figure 5: Devcontainer terminal prompt](.resources/devcontainer-prompt.png){width="5in"}
+![Figure 4: Devcontainer terminal prompt](.resources/devcontainer-prompt.png){width="5in"}
 
 ## Understanding the Functionality of a Home Wi-Fi Modem
 
@@ -70,24 +70,24 @@ Although it looks simple from the outside, your home router is quietly multitask
 - Handles DNS forwarding
 - Implements firewall rules to protect your network
 
-Understanding these functions gives you a strong foundation before we jump into designing and customizing networks using Mininet and P4.
+Understanding these functions gives you a strong foundation before we jump into designing and customising networks using Mininet and P4.
 
-To gain deeper insight into how each of these components works, we will disaggregate the Wi-Fi modem and examine each function individually. [Figure 2](#home-dis-topo) illustrates the different components and shows how they would be positioned in the network topology once separated.
+To gain deeper insight into how each component works, we will disassemble the Wi-Fi modem and examine each function individually. [Figure 2](#home-dis-topo) illustrates the different components and shows how they would be positioned in the network topology once separated.
 
-![Disaggregated Home Network Topology](.resources/home-dis-topo.png "Disaggregated Home Network Topology"){width="5in"}
+![Figure 6: Disaggregated Home Network Topology](.resources/home-dis-topo.png "Disaggregated Home Network Topology"){width="5in" #home-dis-topo}
 <!-- [home-dis-topo]: home-dis-topo.png "Disaggregated Home Network Topology" -->
 
-Before we discuss how to use Mininet, let's first remind our selves the concept of layering in computer networks. Computer network technologies, in order to manage complexity and scalablity, adopt layering and abstraction as a mechanism to separate different functionalities into **layers**. Each layer is responsible for specific tasks, it provides services to the layer above and it relies on the services of the layer below it. This separation allows for easier design, implementation, and troubleshooting of network protocols and devices.
+Before we discuss how to use Mininet, let's first remind ourselves of the concept of layering in computer networks. Computer network technologies, in order to manage complexity and scalability, adopt layering and abstraction as a mechanism to separate different functionalities into **layers**. Each layer is responsible for specific tasks, it provides services to the layer above, and it relies on the services of the layer below it. This separation allows for easier design, implementation, and troubleshooting of network protocols and devices.
 
-The TCP/IP model, the main Internet protocol stack, considers five networks layers:
+The TCP/IP model, the main Internet protocol stack, considers five network layers:
 
 1. *Physical Layer*: This layer deals with the physical transmission of data over a medium, such as cables or wireless signals. It defines the electrical and mechanical aspects of data transmission (e.g. how do you represent a single bit using an electric current).
-2. *Data Link Layer*: This layer is responsible for node-to-node data transfer and error detection/correction. The functionalities include framing, forwarding and addressing (using MAC addresses). The data link layer ensures that two nodes on the same network can communicate effectively and Ethernet is a common protocol used at this layer.
-3. *Network Layer*: This layer handles the routing of data packets across different networks. It determines the best path for data to travel from the source to the destination. It uses logical addressing (IP addresses) to identify devices on the network and protocols like IP (Internet Protocol) operate at this layer. 
-4. *Transport Layer*: This layer provides end-to-end communication control, ensuring complete data transfer. It manages error recovery, flow control, and segmentation of data. The transport layer only works between two end systems (hosts) and does not involve intermediate devices like routers or switches. Common protocols at this layer include TCP (Transmission Control Protocol) and UDP (User Datagram Protocol).
+2. *Data Link Layer*: This layer is responsible for node-to-node data transfer and error detection/correction. The functionalities include framing, forwarding and addressing (using MAC addresses). The data link layer ensures that two nodes on the same network can communicate effectively, and Ethernet is a common protocol used at this layer.
+3. *Network Layer*: This layer handles the routing of data packets across different networks. It determines the best path for data to travel from the source to the destination. It uses logical addressing (IP addresses) to identify devices on the network, and protocols like IP (Internet Protocol) operate at this layer. 
+4. *Transport Layer*: This layer provides end-to-end communication control, ensuring complete data transfer. It manages error recovery, flow control, and data segmentation. The transport layer operates between two end systems (hosts) and does not involve intermediate devices such as routers or switches. Common protocols at this layer include TCP (Transmission Control Protocol) and UDP (User Datagram Protocol).
 5. *Application Layer*: This layer provides network services directly to user applications. It includes protocols for email, file transfer, and other network software services.
 
-We will begin by exploring Mininet by creating a simple topology with a single switch and using it to understand how a switch operates.
+We will begin by exploring Mininet, creating a simple topology with a single switch to understand how a switch operates.
 
 ## Task 1: Working with Mininet
 
