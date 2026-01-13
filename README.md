@@ -82,7 +82,7 @@ To gain deeper insight into how each component works, we will disassemble the Wi
 ![Figure 5: Disaggregated Home Network Topology](.resources/home-dis-topo.png){width="80%" #home-dis-topo}
 <!-- [home-dis-topo]: home-dis-topo.png "Disaggregated Home Network Topology" -->
 
-Before we discuss how to use Mininet, let's first remind ourselves of the concept of layering in computer networks. Computer network technologies, in order to manage complexity and scalability, adopt layering and abstraction as a mechanism to separate different functionalities into **layers**. Each layer is responsible for specific tasks, it provides services to the layer above, and it relies on the services of the layer below it. This separation allows for easier design, implementation, and troubleshooting of network protocols and devices.
+Before we discuss how to use Mininet, let's first refresh the concept of layering in computer networks. Computer network technologies, to manage complexity and scalability, adopt layering and abstraction to separate different functionalities into **layers**. Each layer is responsible for specific tasks; it provides services to the layer above and relies on the services of the layer below. This separation allows for easier design, implementation, and troubleshooting of network protocols and devices.
 
 The TCP/IP model, the main Internet protocol stack, considers five network layers:
 
@@ -99,11 +99,11 @@ We will begin by exploring Mininet, creating a simple topology with a single swi
 <!-- How to use mininet -->
 > **NOTE**: Run the command `xhost +` in a terminal on your lab machine (i.e., *not* in the devcontainer or a host in the mininet topology, a terminal on the actual lab machine) before starting Wireshark or xterm in the devcontainer. This command allows GUI applications running inside the devcontainer to be displayed on your host machine.
 
-Mininet is a powerful network emulator that allows you to create and test virtual network topologies on a single machine. It uses lightweight virtualization to run multiple hosts, switches, and links, all within a single Linux host. This makes it an ideal tool for learning about networking concepts, testing network applications, and experimenting with network protocols. Each host behaves like a real machine, capable of realistically running network programs (web servers, ping, iperf, SSH), and having its own network addresses and interfaces.
+Mininet is a powerful network emulator that allows you to create and test virtual network topologies on a single machine. It uses lightweight virtualisation to run multiple hosts, switches, and links, all within a single Linux host. This makes it an ideal tool for learning about networking concepts, testing network applications, and experimenting with network protocols. Each host behaves like a real machine, capable of running network programs (web servers, ping, iperf, SSH), with its own network addresses and interfaces.
 
 ### How Do We Use Mininet to Reproduce the Functionality of a Switch?
 
-In this part of the lab activity, we will focus on the highlighted component of the home Wi-Fi modem topology discussed earlier — the switch.  With mininet, we can reproduce this in two ways, using the command line or using python scripts. We will explore both one by one.  Mininet allows us to recreate real network behaviour in software, making it the perfect tool for experimenting without needing physical hardware. Using Mininet, we can build a simple network where multiple hosts are connected to a switch and observe how packets are forwarded between them.
+In this part of the lab activity, we will focus on the highlighted component of the home Wi-Fi modem topology discussed earlier — the switch.  With mininet, we can reproduce this in two ways: using the command line or using Python scripts. We will explore both one at a time.  Mininet allows us to recreate real network behaviour in software, making it the perfect tool for experimenting without needing physical hardware. Using Mininet, we can build a simple network where multiple hosts are connected to a switch and observe how packets are forwarded between them.
 
 There are two main ways to create this topology in Mininet:
 
@@ -124,7 +124,7 @@ By the end of this section, you’ll be comfortable creating a basic switch-base
 
 ### Mininet CLI
 
-Lets load using Mininet a simple topology on our devcontainer environment consisting of two hosts connected to a single switch. Open a terminal in the devcontainer and run the following command in the VSCode terminal. The command executes Mininet, creates the topology and give you access to the Mininet terminal from which you can run multiple commands.
+Let's load a simple Mininet topology into our devcontainer environment, consisting of two hosts connected to a single switch. Open a terminal in the devcontainer and run the following command in the VSCode terminal. The command executes Mininet, creates the topology and gives you access to the Mininet terminal from which you can run multiple commands.
 
 ```bash
 mn --topo single,2 --link tc --mac --switch lxbr --controller none --arp
@@ -146,7 +146,7 @@ mininet> net
 mininet> dump
 ```
 
-The `nodes` command lists all the nodes (hosts and switches) in the topology. The `net` command shows the connections between the nodes, and the `dump` command provides detailed information about each node, including its IP address and MAC address.
+The `nodes` command lists all the nodes (hosts and switches) in the topology. The `net` command shows the connections between nodes, and the `dump` command provides detailed information about each node, including its IP and MAC addresses.
 
 You can also run commands on individual hosts by prefixing the command with the host name. For example, to test connectivity between the two hosts, you can use the `ping` command:
 
@@ -162,9 +162,9 @@ mininet > xterm h1 h2
 
 ![Figure 7: 333 mininet xterm sessions in hosts h1 and h2](./.resources/mininet-intro-screenshot.png){width="80%"}
 
-Each host in the network will have a set of network interfaces and a network configuration, in the form of unique IP and MAC addresses, on each interface. A network interface is important for a host to connect to the network. In our example, host `h1` will have single interface (`h1-eth0`) You can also inspect the interfaces of each host, using the built-in Linux network configuration tools. For example, you can use the iproute2 tool called `ip`. The program allows to inspect the addresses assigned to each interface (`ip addr show`), the IP routes (`ip route show`) and the interfaces (`ip dev show`). By running the commands `h1 ip addr show` and `h2 ip addr show`, you should see that each host has a single interface (eth0) with a unique IP address. You can also run the command `ip addr show`, in the xterm terminal you create in the previous step on each host.
+Each host in the network will have a set of network interfaces and a network configuration, consisting of unique IP and MAC addresses for each interface. A network interface is important for a host to connect to the network. In our example, host `h1` will have a single interface (`h1-eth0`). You can also inspect the interfaces of each host, using the built-in Linux network configuration tools. For example, you can use the iproute2 tool called `ip`. The program allows inspection of the addresses assigned to each interface (`ip addr show`), the IP routes (`ip route show`) and the interfaces (`ip dev show`). By running the commands `h1 ip addr show` and `h2 ip addr show`, you should see that each host has a single interface (eth0) with a unique IP address. You can also run the command `ip addr show`, in the xterm terminal you create in the previous step on each host.
 
-> **TODO**: Using now the created topology, answer the questions in the [Week1 Unassessed Quiz](https://modules.lancaster.ac.uk/mod/quiz/view.php?id=2824281).
+> **TODO**: Using the created topology, answer the questions in the [Week1 Unassessed Quiz](https://modules.lancaster.ac.uk/mod/quiz/view.php?id=2824281).
 
 ### Mininet Python Scripting 
 
@@ -174,16 +174,16 @@ Mininet offers a Python API to create topologies. The lab template provides you 
 
 <!-- ![Figure 6: Mininet Topology file and related API calls](.resources/topo.png) -->
 
-There are 3 fundamental components to a Mininet topology: *Hosts*, *Switches* and *Links*. In later stages we will discuss additional custom components, such as routers, but for now we will focus on these 3.
+There are 3 fundamental components to a Mininet topology: *Hosts*, *Switches* and *Links*. In later stages, we will discuss additional custom components, such as routers, but for now, we will focus on these 3.
 
-The topology in the lab template code defines a custom class that extends the `Topo` class in Mininet. This class contains the logic to create the nodes and links that make up the topology. The documentation for the `Topo` class can be found [here](http://mininet.org/api/classmininet_1_1topo_1_1Topo.html), and it allows to add each of these components via the `addHost`, `addSwitch` and `addLink` methods. We will discuss these methods in more detail in Stage 4 and we will use them to implement custom topologies.
+The topology in the lab template code defines a custom class that extends the `Topo` class in Mininet. This class contains the logic to create the nodes and links that make up the topology. The documentation for the `Topo` class can be found [here](http://mininet.org/api/classmininet_1_1topo_1_1Topo.html), and it allows adding each of these components via the `addHost`, `addSwitch` and `addLink` methods. We will discuss these methods in more detail in Stage 4, and we will use them to implement custom topologies.
 
 
 | **Method**                                                                          | **Description**                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | ----------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `addHost(name, ip=None, default=None, **opts)`                                      | Adds a host to the topology with the given name. You can optionally set an IP address for the first interface, define a default route for the host, as well as control other options.                                                                                                                                                                                                                                                                                        |
-| `addSwitch(name, **opts)`                                                           | Adds a switch to the topology with the given name and options. Mininet offers a range of different switch types, such as Open vSwitch, Linux Bridge, and user-space switches, which can be specified through options. For this lab we will use the Linux Bridge switch (`lxbr`) and we will replace the switch class with a P4 switch in later activities.                                                                                                                   |
-| `addLink(node1, node2, intf1=None, intf2=None, params1=None, params2=None, **opts)` | Adds a link between two nodes (hosts or switches) with the given options. The param1 and param2 options accept a dictionary containing configuration for the interfaces created in each host to support the link. For example, a dictionary params1={'ip': '10.20.0.5/24', 'mac': '00:00:00:00:00:01'} will set the interface IP address to 10.20.0.5 and the MAC address to the values 00:00:00:00:00:01 for node1. The intf1 and intf2 define the name for the interfaces. |
+| `addHost(name, ip=None, default=None, **opts)`                                      | Adds a host to the topology with the given name. You can optionally set an IP address for the first interface, define a default route for the host, and control other options.                                                                                                                                                                                                                                                                                        |
+| `addSwitch(name, **opts)`                                                           | Adds a switch to the topology with the given name and options. Mininet supports a range of switch types, including Open vSwitch, Linux Bridge, and user-space switches, which can be specified via options. For this lab, we will use the Linux Bridge switch (`lxbr`) and replace the switch class with a P4 switch in later activities.                                                                                                                   |
+| `addLink(node1, node2, intf1=None, intf2=None, params1=None, params2=None, **opts)` | Adds a link between two nodes (hosts or switches) with the given options. The param1 and param2 options accept a dictionary containing configuration for the interfaces created in each host to support the link. For example, the dictionary params1={'ip': '10.20.0.5/24', 'mac': '00:00:00:00:00:01'} will set the interface IP address to 10.20.0.5 and the MAC address to 00:00:00:00:00:01 for node1. The intf1 and intf2 variables define the interface names. |
 |                                                                                     |
 
 As you might have guessed, the provided topology file generates the same topology as the one created by the command `mn --topo single,2 --mac --switch lxbr --controller none`. To run the provided topology, execute the following command in a terminal:
@@ -194,7 +194,7 @@ mn --custom ./topology.py --link tc --topo simple --mac --switch lxbr --controll
 
 This command tells Mininet to use the custom topology defined in `topology.py` and to create a network with the specified parameters. Once the topology is created, you should see the Mininet prompt again. You can use the same commands as before to inspect the network and test connectivity between the hosts.
 
-> Hint: Since the mn command is quite long, we have created a Makefile to simplify the process of running the topology. Make is an automation tool that can execute commands defined in a file called `Makefile`. To run the provided topology using the Makefile, simply execute the command `make topo` in a terminal within the devcontainer. This will run the same mn command as above. If you face any issues, we also provide a `make clean` command to clean up any Mininet state from previous runs.
+> Hint: Since the mn command is quite long, we have created a Makefile to simplify running the topology. Make is an automation tool that can execute commands defined in a file called `Makefile`. To run the provided topology using the Makefile, simply execute the command `make topo` in a terminal within the devcontainer. This will run the same mn command as above. If you encounter any issues, we also provide a `make clean` command to remove Mininet state from previous runs.
 
 ![Figure 9: Home Network topology - switch focus](.resources/homenet-switch.png){width="80%"}
 
@@ -204,13 +204,13 @@ This command tells Mininet to use the custom topology defined in `topology.py` a
 
 Computer networks are packet-oriented, *i.e.* data is sent across the network in small chunks called packets. You can imagine a packet as a small, self-contained parcel carrying information across the vast landscape of the Internet.
 
-Unlike circuit switched technologies, e.g. telephone networks, where a continuous stream of data is transmitted, the Internet relies on a concept known as packet switching. In this paradigm, large volumes of data are broken down into manageable pieces or "packets" before being sent across the network. Each packet, akin to an organised postcard, contains the actual data and essential information such as the source and destination addresses (i.e., IP addresses).
+Unlike circuit-switched technologies, e.g. telephone networks, where a continuous stream of data is transmitted, the Internet relies on a concept known as packet switching. In this paradigm, large volumes of data are broken down into manageable pieces or "packets" before being sent across the network. Each packet, akin to an organised postcard, contains the actual data and essential information such as the source and destination addresses (i.e., IP addresses).
 
-As these packets traverse the network, they follow diverse routes to reach their destination. This dynamic approach enhances efficiency and robustness, as multiple packets can travel concurrently without relying on a fixed path. Upon reaching their destination, the packets are reassembled, reconstructing the original message or data.
+As these packets traverse the network, they take different paths to reach their destinations. This dynamic approach enhances efficiency and robustness, as multiple packets can travel concurrently without relying on a fixed path. Upon reaching their destination, the packets are reassembled to reconstruct the original message or data.
 
 ### How can you view incoming and outgoing packets on your computer?
 
-A **packet sniffer** is the basic tool for observing incoming and outgoing packets by capturing ("sniffs") messages being sent and received from or by your computer; it will also typically parse, store and display the contents of the various protocol fields in these captured messages. A packet sniffer is passive: it observes messages being sent and received by applications and protocols running on your computer but never sends packets.  Similarly, received packets are never explicitly addressed to the packet sniffer. Instead, a packet sniffer gets a *copy* of packets sent or received from/by application and protocols executing on your machine.
+A **packet sniffer** is a basic tool for observing incoming and outgoing packets by capturing ("sniffs") messages sent and received by your computer; it typically parses, stores, and displays the contents of the various protocol fields in these captured messages. A packet sniffer is passive: it observes messages being sent and received by applications and protocols running on your computer but never sends packets.  Similarly, received packets are never explicitly addressed to the packet sniffer. Instead, a packet sniffer gets a *copy* of packets sent or received from/by application and protocols executing on your machine.
 
 [Figure 10](#packet-sniffer) shows the structure of a packet sniffer. At the right of Figure 10 are the protocols (in this case, Internet protocols) and applications (such as a web browser or email client) that usually run on your computer. The packet sniffer, shown within the dashed rectangle in Figure 10, is an addition to the usual software in your computer and consists of two parts:
 
