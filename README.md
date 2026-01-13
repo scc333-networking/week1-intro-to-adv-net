@@ -1,14 +1,12 @@
 # Introduction to Advanced Networking
 
-
-
 In this lab activity, we will explore the different elements that make up a modern computer network and guide you through building and configuring your very own network. Using a simple home network scenario, we will dissect the protocols and functionalities that connect your network devices to the Internet and understand how they interoperate to provide connectivity.
 
 ## Lab Overview
 
 Think about your home network: you’ve got a Wi-Fi modem or router that connects your laptop, phone, TV, and maybe even your fridge (because why not) to the Internet ([Figure 1](#home-topo)). This appears to be a very simple network scenario, but it implements several key functionalities essential in delivering connectivity in the highly distributed and complex global Internet. 
 
-![Figure1: Internet view with a focus on the home network](.resources/internet-view.png "Typical Internet network view"){#home-topo width="2in"}
+![Figure 1: Internet view with a focus on the home network](.resources/internet-view.png "Internet view with a focus on the home network"){#home-topo width="6in"}
 <!-- [home-topo]: home-topo.png "Typical Home Network Topology" -->
 
 Have you ever wondered:
@@ -16,7 +14,7 @@ Have you ever wondered:
 - How does your modem know which data belongs to which device?
 - How does it forward your Netflix traffic to the internet while sending a Zoom call to your laptop at the same time?
 - What magic is happening inside that little plastic box with too many blinking lights?
-    
+
 **Well… quite a lot!** Your Wi-Fi modem is doing multiple jobs at once, such as:
 
 - *Routing*: deciding where packets should go
