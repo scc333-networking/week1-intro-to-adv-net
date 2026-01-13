@@ -6,7 +6,9 @@ In this lab activity, we will explore the different elements that make up a mode
 
 Think about your home network: you’ve got a Wi-Fi modem or router that connects your laptop, phone, TV, and maybe even your fridge (because why not) to the Internet ([Figure 1](#home-topo)). This appears to be a very simple network scenario, but it implements several key functionalities essential in delivering connectivity in the highly distributed and complex global Internet. 
 
-![Figure 1: Internet view with a focus on the home network](.resources/internet-view.png "Internet view with a focus on the home network"){#home-topo width="6in"}
+<center>
+![Figure 1: Internet view with a focus on the home network](.resources/internet-view.png){width="80%" #home-topo}
+</center>
 <!-- [home-topo]: home-topo.png "Typical Home Network Topology" -->
 
 Have you ever wondered:
@@ -47,13 +49,18 @@ Working with network protocols on a host requires extensive configuration and tu
 
 In order to open the code in a devcontainer, you should select the option `Open In devcontainer` when opening the folder in VSCode. If you missed the option when opening the project, you can still set up the devcontainer. Use the key combination of Ctrl+Shift+P to open the command palette and then select **Dev Containers: Open Folder in Container...**. Both options are depicted in the screenshots below.
 
-![Figure 2: Open devcontainer from popup](.resources/devcontainer-open-boot.png){width="5in"}
+<center>
+![Figure 2: Open devcontainer from popup](.resources/devcontainer-open-boot.png){width="80%"}
+</center>
 
-![Figure 3: Open devcontainer from action menu](.resources/devcontainer-menu.png){width="5in"}
-
+<center>
+![Figure 3: Open devcontainer from action menu](.resources/devcontainer-menu.png){width="80%"}
+</center>
 If you have opened the devcontainer correctly, you should see the following prompt when opening a new terminal in VSCode:
 
-![Figure 4: Devcontainer terminal prompt](.resources/devcontainer-prompt.png){width="5in"}
+<center>
+![Figure 4: Devcontainer terminal prompt](.resources/devcontainer-prompt.png){width="80%"}
+</center>
 
 ## Understanding the Functionality of a Home Wi-Fi Modem
 
@@ -70,9 +77,9 @@ Although it looks simple from the outside, your home router is quietly multitask
 
 Understanding these functions gives you a strong foundation before we jump into designing and customising networks using Mininet and P4.
 
-To gain deeper insight into how each component works, we will disassemble the Wi-Fi modem and examine each function individually. [Figure 2](#home-dis-topo) illustrates the different components and shows how they would be positioned in the network topology once separated.
+To gain deeper insight into how each component works, we will disassemble the Wi-Fi modem and examine each function individually. [Figure 5](#home-dis-topo) illustrates the different components and shows how they would be positioned in the network topology once separated.
 
-![Figure 6: Disaggregated Home Network Topology](.resources/home-dis-topo.png "Disaggregated Home Network Topology"){width="5in" #home-dis-topo}
+![Figure 5: Disaggregated Home Network Topology](.resources/home-dis-topo.png){width="80%" #home-dis-topo}
 <!-- [home-dis-topo]: home-dis-topo.png "Disaggregated Home Network Topology" -->
 
 Before we discuss how to use Mininet, let's first remind ourselves of the concept of layering in computer networks. Computer network technologies, in order to manage complexity and scalability, adopt layering and abstraction as a mechanism to separate different functionalities into **layers**. Each layer is responsible for specific tasks, it provides services to the layer above, and it relies on the services of the layer below it. This separation allows for easier design, implementation, and troubleshooting of network protocols and devices.
@@ -96,7 +103,7 @@ Mininet is a powerful network emulator that allows you to create and test virtua
 
 ### How Do We Use Mininet to Reproduce the Functionality of a Switch?
 
-In this part of the lab activity, we will focus on the highlighted component of the home Wi-Fi modem topology discussed earlier — the switch — as shown in [Figure 6](#home-topo-highlight).  With mininet, we can reproduce this in two ways, using the command line or using python scripts. We will explore both one by one.  Mininet allows us to recreate real network behaviour in software, making it the perfect tool for experimenting without needing physical hardware. Using Mininet, we can build a simple network where multiple hosts are connected to a switch and observe how packets are forwarded between them.
+In this part of the lab activity, we will focus on the highlighted component of the home Wi-Fi modem topology discussed earlier — the switch.  With mininet, we can reproduce this in two ways, using the command line or using python scripts. We will explore both one by one.  Mininet allows us to recreate real network behaviour in software, making it the perfect tool for experimenting without needing physical hardware. Using Mininet, we can build a simple network where multiple hosts are connected to a switch and observe how packets are forwarded between them.
 
 There are two main ways to create this topology in Mininet:
 
@@ -109,7 +116,7 @@ There are two main ways to create this topology in Mininet:
   - Allows automation and repeatable experiments
   - Commonly used for larger or more complex topologies
 
-![Figure 6: Typical Home Network Topology - focus Switch](.resources/home-topo-switch-focus.png){width="5in"}
+![Figure 6: Typical Home Network Topology - focus Switch](.resources/home-topo-switch-focus.png){width="80%"}
 
 
 We will explore both approaches step by step, starting with the command line and then moving on to Python scripting. This will help you understand not only how a switch works, but also how Mininet represents and manages network devices behind the scenes.
@@ -122,7 +129,8 @@ Lets load using Mininet a simple topology on our devcontainer environment consis
 ```bash
 mn --topo single,2 --link tc --mac --switch lxbr --controller none --arp
 ```
-![Figure 7: Mininet command explanation](.resources/mininet-cmd.png)
+
+![Figure 6: Mininet command explanation](.resources/mininet-cmd.png){width="90%"}
 
 Once the topology is created, you should see the Mininet prompt:
 
@@ -152,7 +160,7 @@ The previous command will execute the program ping on host h1, send 3 ICMP echo 
 mininet > xterm h1 h2
 ```
 
-![Figure 4: 231 mininet devcontainer](./.resources/mininet-intro-screenshot.png){width="6in"}
+![Figure 7: 333 mininet xterm sessions in hosts h1 and h2](./.resources/mininet-intro-screenshot.png){width="80%"}
 
 Each host in the network will have a set of network interfaces and a network configuration, in the form of unique IP and MAC addresses, on each interface. A network interface is important for a host to connect to the network. In our example, host `h1` will have single interface (`h1-eth0`) You can also inspect the interfaces of each host, using the built-in Linux network configuration tools. For example, you can use the iproute2 tool called `ip`. The program allows to inspect the addresses assigned to each interface (`ip addr show`), the IP routes (`ip route show`) and the interfaces (`ip dev show`). By running the commands `h1 ip addr show` and `h2 ip addr show`, you should see that each host has a single interface (eth0) with a unique IP address. You can also run the command `ip addr show`, in the xterm terminal you create in the previous step on each host.
 
@@ -160,9 +168,9 @@ Each host in the network will have a set of network interfaces and a network con
 
 ### Mininet Python Scripting 
 
-Mininet offers a Python API to create topologies. The lab template provides you with a very basic topology file (`./topology.py`) that, through Mininet, will produce an emulated network consisting of 2 host connected via two seperate links to a switch ([Figure 8](#topology)). But what exactly does all that mean?
+Mininet offers a Python API to create topologies. The lab template provides you with a very basic topology file (`./topology.py`) that, through Mininet, will produce an emulated network consisting of 2 host connected via two separate links to a switch ([Figure 8](#topology)). But what exactly does all that mean?
 
-![Figure 8: Topology](.resources/switch-topo.png)
+![Figure 8: Simplifies Internet topology for this lab ](.resources/switch-topo.png){width="80%" #topology}
 
 <!-- ![Figure 6: Mininet Topology file and related API calls](.resources/topo.png) -->
 
@@ -171,10 +179,10 @@ There are 3 fundamental components to a Mininet topology: *Hosts*, *Switches* an
 The topology in the lab template code defines a custom class that extends the `Topo` class in Mininet. This class contains the logic to create the nodes and links that make up the topology. The documentation for the `Topo` class can be found [here](http://mininet.org/api/classmininet_1_1topo_1_1Topo.html), and it allows to add each of these components via the `addHost`, `addSwitch` and `addLink` methods. We will discuss these methods in more detail in Stage 4 and we will use them to implement custom topologies.
 
 
-| **Method**                                                                          | **Description**                                                                                                                                                                                                                                                                                                                                            |
-| ----------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `addHost(name, ip=None, default=None, **opts)`                                      | Adds a host to the topology with the given name. You can optionally set an IP address for the first interface, define a default route for the host, as well as control other options.                                                                                                                                                                      |
-| `addSwitch(name, **opts)`                                                           | Adds a switch to the topology with the given name and options. Mininet offers a range of different switch types, such as Open vSwitch, Linux Bridge, and user-space switches, which can be specified through options. For this lab we will use the Linux Bridge switch (`lxbr`) and we will replace the switch class with a P4 switch in later activities. |
+| **Method**                                                                          | **Description**                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| ----------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `addHost(name, ip=None, default=None, **opts)`                                      | Adds a host to the topology with the given name. You can optionally set an IP address for the first interface, define a default route for the host, as well as control other options.                                                                                                                                                                                                                                                                                        |
+| `addSwitch(name, **opts)`                                                           | Adds a switch to the topology with the given name and options. Mininet offers a range of different switch types, such as Open vSwitch, Linux Bridge, and user-space switches, which can be specified through options. For this lab we will use the Linux Bridge switch (`lxbr`) and we will replace the switch class with a P4 switch in later activities.                                                                                                                   |
 | `addLink(node1, node2, intf1=None, intf2=None, params1=None, params2=None, **opts)` | Adds a link between two nodes (hosts or switches) with the given options. The param1 and param2 options accept a dictionary containing configuration for the interfaces created in each host to support the link. For example, a dictionary params1={'ip': '10.20.0.5/24', 'mac': '00:00:00:00:00:01'} will set the interface IP address to 10.20.0.5 and the MAC address to the values 00:00:00:00:00:01 for node1. The intf1 and intf2 define the name for the interfaces. |
 |                                                                                     |
 
@@ -188,9 +196,9 @@ This command tells Mininet to use the custom topology defined in `topology.py` a
 
 > Hint: Since the mn command is quite long, we have created a Makefile to simplify the process of running the topology. Make is an automation tool that can execute commands defined in a file called `Makefile`. To run the provided topology using the Makefile, simply execute the command `make topo` in a terminal within the devcontainer. This will run the same mn command as above. If you face any issues, we also provide a `make clean` command to clean up any Mininet state from previous runs.
 
-![Figure 9: Home Network topology - switch focus](.resources/homenet-switch.png){width="5in"}
+![Figure 9: Home Network topology - switch focus](.resources/homenet-switch.png){width="80%"}
 
-> **Your task**: Modify the provided topology file to recreate the topology in Figure 9. Your topology file should define all the necessary hosts with the correct names and IP adddresses, connected to the switch via seperate links. One you complete your code, run the modified topology using the `mn --custom` command above and answer the questions in the second part of the [Week1 Unassessed Quiz](https://modules.lancaster.ac.uk/mod/quiz/view.php?id=2824281).
+> **Your task**: Modify the provided topology file to recreate the topology in Figure 9. Your topology file should define all the necessary hosts with the correct names and IP addresses, connected to the switch via separate links. Once you complete your code, run the modified topology using the `mn --custom` command above and answer the questions in the second part of the [Week1 Unassessed Quiz](https://modules.lancaster.ac.uk/mod/quiz/view.php?id=2824281).
 
 ## Task 2: Inspecting Traffic with Wireshark and Mininet
 
@@ -204,14 +212,13 @@ As these packets traverse the network, they follow diverse routes to reach their
 
 A **packet sniffer** is the basic tool for observing incoming and outgoing packets by capturing ("sniffs") messages being sent and received from or by your computer; it will also typically parse, store and display the contents of the various protocol fields in these captured messages. A packet sniffer is passive: it observes messages being sent and received by applications and protocols running on your computer but never sends packets.  Similarly, received packets are never explicitly addressed to the packet sniffer. Instead, a packet sniffer gets a *copy* of packets sent or received from/by application and protocols executing on your machine.
 
-Figure 8 shows the structure of a packet sniffer. At the right of Figure 8 are the protocols (in this case, Internet protocols) and applications (such as a web browser or email client) that usually run on your computer. The packet sniffer, shown within the dashed rectangle in Figure 8, is an addition to the usual software in your computer and consists of two parts:
+[Figure 10](#packet-sniffer) shows the structure of a packet sniffer. At the right of Figure 10 are the protocols (in this case, Internet protocols) and applications (such as a web browser or email client) that usually run on your computer. The packet sniffer, shown within the dashed rectangle in Figure 10, is an addition to the usual software in your computer and consists of two parts:
 
-![Figure 9: Packet sniffer structure](.resources/packet-sniffer.jpg){width="4.325937226596675in"
-height="1.703124453193351in"}
+![Figure 10: Packet sniffer structure](.resources/packet-sniffer.jpg){width="80%" #packet-sniffer}
 
-* The **packet capture library** receives a copy of every packet that is sent from or received by your computer over a given interface (e.g., Ethernet card or Wi-Fi). As discussed above, messages exchanged by protocols such as HTTP (to be covered on Thursday of Week 12) are eventually encapsulated in packets that are transmitted over physical media such as an Ethernet cable or a Wi-Fi radio. Capturing the packets thus gives you all the messages sent/received from/by all the applications executing on your computer.
+* The **packet capture library** receives a copy of every packet that is sent from or received by your computer over a given interface (e.g., Ethernet card or Wi-Fi). As discussed above, messages exchanged by protocols such as HTTP are eventually encapsulated in packets that are transmitted over physical media such as an Ethernet cable or a Wi-Fi radio. Capturing the packets thus gives you all the messages sent/received from/by all the applications executing on your computer.
 
-* The second component of a packet sniffer is the **packet analyser**, which displays the contents of all fields within a protocol message.  To do so, the packet analyser must "understand" the structure of all messages exchanged by protocols. For example, suppose we are interested in displaying the various fields in messages exchanged by the HTTP protocol in Figure 1. The packet analyser understands the format of Ethernet frames and can identify the IP datagram within an Ethernet frame. It also understands the IP datagram format, so that it can extract the TCP segment within the IP datagram.
+* The second component of a packet sniffer is the **packet analyser**, which displays the contents of all fields within a protocol message.  To do so, the packet analyser must "understand" the structure of all messages exchanged by protocols. For example, suppose we are interested in displaying the various fields in messages exchanged by the HTTP protocol in [Figure 10](#packet-sniffer). The packet analyser understands the format of Ethernet frames and can identify the IP datagram within an Ethernet frame. It also understands the IP datagram format, so that it can extract the TCP segment within the IP datagram.
 
 Finally, it understands the TCP segment structure, so it can extract the HTTP message contained in the TCP segment. Finally, it understands the HTTP protocol and so, for example, knows that the first bytes of an HTTP message will contain the string "GET," "POST," or "HEAD," as shown later in Figure 5 below.
 
@@ -229,7 +236,7 @@ Let now generate some traffic between the two hosts in your topology. From the M
 
 Ethernet is the most widely used technology for local area networks (LANs). It defines a set of standards for wiring and signaling at the physical layer, as well as data link layer protocols for framing and addressing. Ethernet uses MAC (Media Access Control) addresses to uniquely identify devices on a network. The Ethernet header is the first part of every network packet and contains important information for delivering the packet to its destination within a local network. It typically contains an address of the sender and the receiver of the packet, as well as a type field that indicates the protocol of the payload (e.g., IPv4, IPv6, ARP).
 
-In order to connect multiple devices within a local network, Ethernet requires specisal devices that can multiplex traffic between several cables. Originally, network hubs were the first attempt to achieve this. Hubs rebroadcast traffic received on a Ethernet cable, to all cables connected to the devive. Because hubs blindly reatrnsmit traffic, they are inefficient and insecure as they blindly broadcasted incoming packets to all connected devices. To improve efficiency and performance, Ethernet switches were introduced. Instead of blindly broadcasting data to every device, a switch uses an algorithm to learn the MAC addresses of devices connected to each port. It reads MAC addresses and forwards packets only to the correct destination, improving speed and efficiency.
+In order to connect multiple devices within a local network, Ethernet requires special devices that can multiplex traffic between several cables. Originally, network hubs were the first attempt to achieve this. Hubs rebroadcast traffic received on an Ethernet cable, to all cables connected to the device. Because hubs blindly retransmit traffic, they are inefficient and insecure as they blindly broadcasted incoming packets to all connected devices. To improve efficiency and performance, Ethernet switches were introduced. Instead of blindly broadcasting data to every device, a switch uses an algorithm to learn the MAC addresses of devices connected to each port. It reads MAC addresses and forwards packets only to the correct destination, improving speed and efficiency.
 
 #### 📨 Analogy: The Office Mailroom
 
@@ -243,7 +250,7 @@ This is exactly how a switch ensures packets reach the right device.
 
 A learning switch operates by maintaining a MAC address table that maps MAC addresses to specific switch ports. When a frame arrives at the switch, it examines the source MAC address and records which port it came from in its MAC address table. This way, the switch learns where each device is located on the network. Furthermore, the switch looks at the destination MAC address of the incoming frame. If the destination MAC address is found in the MAC address table, the switch forwards the frame only to the port associated with that MAC address. If the destination MAC address is not found in the table, the switch floods the frame out of all ports except the one it arrived on, ensuring that it reaches its intended recipient.
 
-![Figure : Learning switch in practice.](.resources/learning-switch.gif "Switch Learning Process")
+![Figure 11: Learning switch in practice.](.resources/learning-switch.gif "Switch Learning Process")
 
 Linux uses the term *bridge* to describe a software-based switch. In Mininet, when we create a switch using the `lxbr` switch type, we are essentially creating a Linux bridge that functions as a learning switch. The Linux bridge will learn MAC addresses and forward frames in the same way as a physical Ethernet switch.
 
@@ -255,17 +262,17 @@ Let's now open a Wireshark instance on host `h2` and start capturing packets on 
 
 > **Your task**: Using the provided topology, answer the questions in the fourth part of the [Week1 Unassessed Quiz](https://modules.lancaster.ac.uk/mod/quiz/view.php?id=2824281).
 
-## Task 4: Understadning IPv4 and Routing
+## Task 4: Understanding IPv4 and Routing
 
 In the previous tasks, we explored how devices communicate within a local network using Ethernet and switches. However, to connect to devices outside our local network, such as accessing websites on the Internet, we need to understand how data is routed between different networks. This is where the Internet Protocol (IP) comes into play.
 
-In the global Internet, hosts are grouped into separate networks, each identified by a unique network address. To communicate with hosts in other networks, data packets must be routed through intermediary devices called routers. Routers use IP addresses to determine the best path for forwarding packets to their destination. During the SCC.231 module, you learned about IPv4 addressing and subnetting, which are essential concepts for understanding how routing works, as well as experienced the use of routing protocols such as OSPF and BGP, to dynamicaly learn and exchange routing information between routers.
+In the global Internet, hosts are grouped into separate networks, each identified by a unique network address. To communicate with hosts in other networks, data packets must be routed through intermediary devices called routers. Routers use IP addresses to determine the best path for forwarding packets to their destination. During the SCC.231 module, you learned about IPv4 addressing and subnetting, which are essential concepts for understanding how routing works, as well as experienced the use of routing protocols such as OSPF and BGP, to dynamically learn and exchange routing information between routers.
 
 ### Adding "Internet" services to our Mininet Topology
 
-![Figure 10: Home Network Topology with Internet Services](.resources/homenet-router.png){width="5in"}
+![Figure 12: Home Network Topology with Internet Services](.resources/homenet-router.png){width="80%" #homenet-router}
 
-Lets now extend our Mininet topology to include a router and two Internet services, as shown in [Figure 10](#homenet-router). The router will connect our home network to the Internet services, allowing hosts in the home network to communicate with these services. The two Internet services will be represented by two additional hosts in the Mininet topology, each running a simple web server. You also need to add a couple of new switches (`s2` and `s3`) as well as a new host (`router`) to interconnect the home network with the Internet services. The `router` host will represent the router functionality of the home router, forwarding packets between the home network and the Internet services. You will need to configure IP addresses on all interfaces and set up routing on the `router` host to enable communication between the home network and the Internet services.
+Lets now extend our Mininet topology to include a router and two Internet services, as shown in Figure 12. The router will connect our home network to the Internet services, allowing hosts in the home network to communicate with these services. The two Internet services will be represented by two additional hosts in the Mininet topology, each running a simple web server. You also need to add a couple of new switches (`s2` and `s3`) as well as a new host (`router`) to interconnect the home network with the Internet services. The `router` host will represent the router functionality of the home router, forwarding packets between the home network and the Internet services. You will need to configure IP addresses on all interfaces and set up routing on the `router` host to enable communication between the home network and the Internet services.
 
 In order to support the routing functionality, the provide topology.py file contains a new class called `Router` that extends the `Host` class in Mininet. This class configures IP forwarding on the host, allowing it to forward packets between its interfaces. You can use this class to create the `router` host in your topology. You can create a new `router` host in your topology using the following code snippet:
 
@@ -275,7 +282,7 @@ router = self.addHost('router', ip=None, cls=Router)
 
 > Hint: As the home router will have multiple interfaces, you should not assign an IP address when creating the host. we must need to set the `ip` parameter to `None` to prevent Mininet from assigning an IP address to the first interface of the host; you will assign IP addresses to all interfaces manually later using the addLink method and the `params1` or `params2` parameters.
 
-> **Your task**: Modify the provided topology file to recreate the topology in Figure 10. Your topology file should define all the necessary hosts with the correct names and IP adddresses, connected to the appropriate switches via seperate links. 
+> **Your task**: Modify the provided topology file to recreate the topology in Figure 12. Your topology file should define all the necessary hosts with the correct names and IP addresses, connected to the appropriate switches via separate links. 
 
 Your topology should also configure routing on the individual hosts, so they are aware to send packets destined for the Internet services via the `router` host. You can set the default route for each host using the `default` parameter of the `addHost` method. For example, to set the default route for host `homePC` to point to the router's interface in the home network, you can use the following code snippet:
 
