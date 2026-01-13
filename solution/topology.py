@@ -1,53 +1,71 @@
+#!/usr/bin/python3
+
 from mininet.topo import Topo
 from mininet.net import Mininet
 from mininet.node import OVSController
 from mininet.cli import CLI
 from mininet.link import TCLink
 from mininet.log import setLogLevel
-from mininet.util import LinuxBridge
+from mininet.nodelib import LinuxBridge
 
 
 class LabTopology(Topo):
-	"""Two hosts connected to a single switch."""
+    """Two hosts connected to a single switch."""
 
-	def build(self):
-		# Create a single switch
-		s1 = self.addSwitch("s1")
+    def build(self):
+        # Create a single switch
+        switch = self.addSwitch("s1", loglevel="debug")
 
-		# Create two hosts
-		homePC = self.addHost("homePC", ip="192.168.1.2/24")
-		tablet = self.addHost("tablet", ip="192.168.1.3/24")
-		phone = self.addHost("phone", ip="192.168.1.4/24")
+        # Create two hosts
+        homePC = self.addHost("homePC", ip="192.168.0.10/24",
+                              defaultRoute="via 192.168.0.1")
+        tablet = self.addHost("tablet", ip="192.168.0.12/24",
+                              defaultRoute="via 192.168.0.1")
+        phone = self.addHost("phone", ip="192.168.0.5/24",
+                             defaultRoute="via 192.168.0.1")
 
-		
+        cloud = self.addHost("cloud", ip="10.10.0.32/16",
+                             defaultRoute="via 10.10.0.1")
+        web = self.addHost("web", ip="10.0.0.16/16",
+                           defaultRoute="via 10.0.0.1")
 
-		# Connect hosts to the switch
-		self.addLink(homePC, s1)
-		self.addLink(tablet, s1)
-		self.addLink(phone, s1)
-		
+        internet = self.addHost("internet", ip=None,
+                                defaultRoute="via 192.168.10.2")
+        router = self.addHost("router", ip=None,
+                              defaultRoute="via 192.168.10.1")
+
+        # Connect hosts to the switch
+        self.addLink(switch, homePC, port1=2)
+        self.addLink(switch, tablet, port1=3)
+        self.addLink(switch, phone, port1=4)
+        self.addLink(router, switch, port2=1, params1={"ip": "192.168.0.1/24"})
+        self.addLink(router, internet, params1={
+                     "ip": "192.168.10.2/24"}, params2={"ip": "192.168.10.1/24"})
+        self.addLink(internet, web, params1={"ip": "10.0.0.1/16"})
+        self.addLink(internet, cloud, params1={"ip": "10.10.0.1/16"})
+
+
 # Expose topology for `mn --custom topology.py --topo simple`
 topos = {
-	"simple": (lambda: LabTopology()),
+    "simple": (lambda: LabTopology()),
 }
 
 
 def run():
-	"""Spin up the network, run a quick test, then drop into CLI."""
-	net = Mininet(topo=LabTopology(), link=TCLink, controller=None, autosetup=True, switch=LinuxBridge)
-	net.start()
+    """Spin up the network, run a quick test, then drop into CLI."""
+    net = Mininet(topo=LabTopology(), link=TCLink,
+                  autoSetMacs=True,
+                  autoStaticArp=True,
+                  switch=LinuxBridge, controller=None)
+    net.start()
 
-	# Quick connectivity test
-	net.pingAll()
+    # Interactive CLI for exploration
+    CLI(net)
 
-	# Interactive CLI for exploration
-	CLI(net)
-
-	# Clean up
-	net.stop()
+    # Clean up
+    net.stop()
 
 
 if __name__ == "__main__":
-	setLogLevel("info")
-	run()
-
+    setLogLevel("info")
+    run()
