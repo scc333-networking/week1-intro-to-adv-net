@@ -6,7 +6,8 @@
   // "postCreateCommand": "bash -c /scripts/entrypoint.sh",
   "privileged": true,
   "containerEnv": {
-     "DISPLAY": "${localEnv:DISPLAY}"
+     "DISPLAY": "${localEnv:DISPLAY}", 
+     // "DISPLAY": "docker.for.mac.host.internal:0",
   },
   "mounts": [
     "source=/tmp/.X11-unix,target=/tmp/.X11-unix,type=bind,consistency=cached"
