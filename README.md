@@ -6,9 +6,8 @@ In this lab activity, we will explore the different elements that make up a mode
 
 Think about your home network: you’ve got a Wi-Fi modem or router that connects your laptop, phone, TV, and maybe even your fridge (because why not) to the Internet ([Figure 1](#home-topo)). This appears to be a very simple network scenario, but it implements several key functionalities essential in delivering connectivity in the highly distributed and complex global Internet.
 
-<center>
 ![Figure 1: Internet view with a focus on the home network](.resources/internet-view.png){width="80%" #home-topo}
-</center>
+
 <!-- [home-topo]: home-topo.png "Typical Home Network Topology" -->
 
 Have you ever wondered:
@@ -49,18 +48,14 @@ Working with network protocols on a host requires extensive configuration and tu
 
 In order to open the code in a devcontainer, you should select the option `Open In devcontainer` when opening the folder in VSCode. If you missed the option when opening the project, you can still set up the devcontainer. Use the key combination of Ctrl+Shift+P to open the command palette and then select **Dev Containers: Open Folder in Container...**. Both options are depicted in the screenshots below.
 
-<center>
 ![Figure 2: Open devcontainer from popup](.resources/devcontainer-open-boot.png){width="80%"}
-</center>
 
-<center>
+
 ![Figure 3: Open devcontainer from action menu](.resources/devcontainer-menu.png){width="80%"}
-</center>
-If you have opened the devcontainer correctly, you should see the following prompt when opening a new terminal in VSCode:
 
-<center>
+  If you have opened the devcontainer correctly, you should see the following prompt when opening a new terminal in VSCode:
+
 ![Figure 4: Devcontainer terminal prompt](.resources/devcontainer-prompt.png){width="80%"}
-</center>
 
 ## Understanding the Functionality of a Home Wi-Fi Modem
 
@@ -80,7 +75,6 @@ Understanding these functions gives you a strong foundation before we jump into 
 To gain deeper insight into how each component works, we will disassemble the Wi-Fi modem and examine each function individually. [Figure 5](#home-dis-topo) illustrates the different components and shows how they would be positioned in the network topology once separated.
 
 ![Figure 5: Disaggregated Home Network Topology](.resources/home-dis-topo.png){width="80%" #home-dis-topo}
-<!-- [home-dis-topo]: home-dis-topo.png "Disaggregated Home Network Topology" -->
 
 Before we discuss how to use Mininet, let's first refresh the concept of layering in computer networks. Computer network technologies, to manage complexity and scalability, adopt layering and abstraction to separate different functionalities into **layers**. Each layer is responsible for specific tasks; it provides services to the layer above and relies on the services of the layer below. This separation allows for easier design, implementation, and troubleshooting of network protocols and devices.
 
@@ -172,8 +166,6 @@ Mininet offers a Python API to create topologies. The lab template provides you 
 
 ![Figure 8: Simplifies Internet topology for this lab ](.resources/switch-topo.png){width="80%" #topology}
 
-<!-- ![Figure 6: Mininet Topology file and related API calls](.resources/topo.png) -->
-
 There are 3 fundamental components to a Mininet topology: *Hosts*, *Switches* and *Links*. In later stages, we will discuss additional custom components, such as routers, but for now, we will focus on these 3.
 
 The topology in the lab template code defines a custom class that extends the `Topo` class in Mininet. This class contains the logic to create the nodes and links that make up the topology. The documentation for the `Topo` class can be found [here](http://mininet.org/api/classmininet_1_1topo_1_1Topo.html), and it allows adding each of these components via the `addHost`, `addSwitch` and `addLink` methods. We will discuss these methods in more detail in Stage 4 and use them to implement custom topologies.
@@ -189,7 +181,7 @@ The topology in the lab template code defines a custom class that extends the `T
 As you might have guessed, the provided topology file generates the same topology as the one created by the command `mn --topo single,2 --mac --switch lxbr --controller none`. To run the provided topology, execute the following command in a terminal:
 
 ```bash
-mn --custom ./topology.py --link tc --topo simple --mac --switch lxbr --controller none --arp
+mn --custom ./topology.py --link tc --topo LabTopology --mac --switch lxbr --controller none --arp
 ```
 
 This command tells Mininet to use the custom topology defined in `topology.py` and to create a network with the specified parameters. Once the topology is created, you should see the Mininet prompt again. You can use the same commands as before to inspect the network and test connectivity between the hosts.
