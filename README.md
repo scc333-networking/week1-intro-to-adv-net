@@ -4,7 +4,7 @@ In this lab activity, we will explore the different elements that make up a mode
 
 ## Lab Overview
 
-Think about your home network: you’ve got a Wi-Fi modem or router that connects your laptop, phone, TV, and maybe even your fridge (because why not) to the Internet ([Figure 1](#home-topo)). This appears to be a very simple network scenario, but it implements several key functionalities essential in delivering connectivity in the highly distributed and complex global Internet. 
+Think about your home network: you’ve got a Wi-Fi modem or router that connects your laptop, phone, TV, and maybe even your fridge (because why not) to the Internet ([Figure 1](#home-topo)). This appears to be a very simple network scenario, but it implements several key functionalities essential in delivering connectivity in the highly distributed and complex global Internet.
 
 <center>
 ![Figure 1: Internet view with a focus on the home network](.resources/internet-view.png){width="80%" #home-topo}
@@ -24,7 +24,7 @@ Have you ever wondered:
 - *Network Address Translation (NAT)*: letting many devices share one public IP
 - *DNS Forwarding*: helping translate website names into IP addresses
 - *Firewalling*: keeping unwanted traffic out
-  
+
 This lab activity will help you recreate these functionalities on a lab machine/VM using a network emulator, understand how these components work, and even configure some of them yourself. For this activity, we will emulate a home network scenario connected to a small set of Internet services. This will remind you of the different protocols used to connect devices to the global Internet and get you up to speed on some of the key technologies we will use this year to explore advanced network topics in the module labs.
 
 By the end of this lab activity, you will be able to:
@@ -38,7 +38,7 @@ By the end of this lab activity, you will be able to:
 
 During our labs, we will use a combination of tools designed for recreating, visualising and experimenting with networks:
 
-- [Mininet](https://mininet.org/) is a network emulator that creates a realistic virtual network on a single machine. It uses lightweight virtualisation to run multiple hosts, switches, and links, all within a single Linux host. We will use Mininet to recreate virtual network topologies with real Linux hosts, switches, and links. Mininet is ideal for reproducible network testing and experimentation, using common virtualisation technologies available in the Linux kernel. 
+- [Mininet](https://mininet.org/) is a network emulator that creates a realistic virtual network on a single machine. It uses lightweight virtualisation to run multiple hosts, switches, and links, all within a single Linux host. We will use Mininet to recreate virtual network topologies with real Linux hosts, switches, and links. Mininet is ideal for reproducible network testing and experimentation, using common virtualisation technologies available in the Linux kernel.
 - [P4](https://p4.org/) is the latest generation of open Software Defined Network technologies. It is a protocol-independent language for programming how packets are processed by a network device. With P4, you can define custom behaviours in routers and switches, while network vendors such as Intel and Barefoot provide hardware that can run P4 programs at line rate (Tbps data processing rates). We will explore this technology in more detail in the Week 12 lecture and labs.
 - [Wireshark](https://www.wireshark.org/) is a network protocol analyser that lets you capture and inspect packets in real-time. It provides a graphical interface for viewing packet details, filtering traffic, and analysing network protocols. We will use Wireshark to inspect the traffic flowing through our emulated networks and understand how protocols work under the hood.
 - [Python](https://www.python.org/) will be used to script Mininet topologies and to implement custom P4 control logic. You should be familiar with basic Python programming concepts, such as those in modules like SCC.231.  We will use Python scripts to automate network configurations and experiments. If you want to refresh your Python skills, consider checking out resources like [Future Coder](https://futurecoder.io/).
@@ -88,7 +88,7 @@ The TCP/IP model, the main Internet protocol stack, considers five network layer
 
 1. *Physical Layer*: This layer deals with the physical transmission of data over a medium, such as cables or wireless signals. It defines the electrical and mechanical aspects of data transmission (e.g. how do you represent a single bit using an electric current).
 2. *Data Link Layer*: This layer is responsible for node-to-node data transfer and error detection/correction. The functionalities include framing, forwarding and addressing (using MAC addresses). The data link layer ensures that two nodes on the same network can communicate effectively, and Ethernet is a common protocol used at this layer.
-3. *Network Layer*: This layer handles the routing of data packets across different networks. It determines the best path for data to travel from the source to the destination. It uses logical addressing (IP addresses) to identify devices on the network, and protocols like IP (Internet Protocol) operate at this layer. 
+3. *Network Layer*: This layer handles the routing of data packets across different networks. It determines the best path for data to travel from the source to the destination. It uses logical addressing (IP addresses) to identify devices on the network, and protocols like IP (Internet Protocol) operate at this layer.
 4. *Transport Layer*: This layer provides end-to-end communication control, ensuring complete data transfer. It manages error recovery, flow control, and data segmentation. The transport layer operates between two end systems (hosts) and does not involve intermediate devices such as routers or switches. Common protocols at this layer include TCP (Transmission Control Protocol) and UDP (User Datagram Protocol).
 5. *Application Layer*: This layer provides network services directly to user applications. It includes protocols for email, file transfer, and other network software services.
 
@@ -166,7 +166,7 @@ Each host in the network will have a set of network interfaces and a network con
 
 > **TODO**: Using the created topology, answer the questions in the [Week1 Unassessed Quiz](https://modules.lancaster.ac.uk/mod/quiz/view.php?id=2824281).
 
-### Mininet Python Scripting 
+### Mininet Python Scripting
 
 Mininet offers a Python API to create topologies. The lab template provides you with a very basic topology file (`./topology.py`) that, when run in Mininet, produces an emulated network consisting of 2 hosts connected via two separate links to a switch ([Figure 8](#topology)). But what exactly does all that mean?
 
@@ -224,8 +224,8 @@ Finally, it understands the TCP segment structure, so it can extract the HTTP me
 
 In 333 labs, we will use the [Wireshark packet sniffer](http://www.wireshark.org/)  to display the contents of packets sent/received from/generated by protocols at different levels of the protocol stack. (Technically speaking, Wireshark is a packet analyser that uses a packet capture library on your computer.
 
-Also, technically speaking, Wireshark captures link-layer frames (as shown in Figure 10) but uses the generic term "packet" to refer to link-layer frames, network-layer datagrams, transport-layer segments, and application-layer messages, so we'll use the less-precise "packet" term here to align with Wireshark's convention. Wireshark is a free network protocol analyser that runs on Windows, Mac, and Linux/Unix computers. 
-  
+Also, technically speaking, Wireshark captures link-layer frames (as shown in Figure 10) but uses the generic term "packet" to refer to link-layer frames, network-layer datagrams, transport-layer segments, and application-layer messages, so we'll use the less-precise "packet" term here to align with Wireshark's convention. Wireshark is a free network protocol analyser that runs on Windows, Mac, and Linux/Unix computers.
+
 To run Wireshark on a host in your Mininet topology, you first must use the `xterm` command from the Mininet CLI to open a terminal window for the host, and then run Wireshark from that terminal. Start a Wireshark application on host `homePC` and start sniffing packets on interface `homePC-eth0` (the only interface of host `homePC`), by clicking on the interface name in the list of available interfaces. You should start seeing packets captured in real time (primarily ICMPv6 packets). Congratulations, you are now capturing packets on a host in your Mininet topology!
 
 Let's now generate some traffic between the two hosts in your topology. From the Mininet CLI, run the command `homePC ping -c 5 tablet` to send 5 ICMP echo requests from host `homePC` to host `tablet`. You should see the corresponding ICMP packets appearing in Wireshark on the host `homePC`. You can stop the packet capture in Wireshark by clicking on the red square button in the toolbar. The main Wireshark window should now display all captured packets, along with details such as source and destination IP addresses, protocol type, and packet length, when selecting individual packets. The captured packets should contain multiple protocol headers, resulting from network layers (typically Ethernet -> IPv4 -> UDP/TCP).
@@ -244,7 +244,7 @@ A learning switch maintains a MAC address table that maps MAC addresses to speci
 
 Linux uses the term *bridge* to describe a software-based switch. In Mininet, when we create a switch with the `lxbr` switch type, we create a Linux bridge that behaves like a learning switch. The Linux bridge will learn MAC addresses and forward frames in the same way as a physical Ethernet switch.
 
-In order to inspect the MAC table of a Linux bridge, you can use the `bridge` CLI tool. For example, to view the MAC address table of a switch named `s1`, you can run the following command in the Mininet prompt `s1 bridge fdb show br s1`. You can also flush the MAC address table using the command `s1 bridge fdb flush br s1`.
+In order to inspect the MAC table of a Linux bridge, you can use the `bridge` CLI tool. For example, to view the MAC address table of a switch named `s1`, you can run the following command in the Mininet prompt `s1 bridge fdb show br "s1"`. You can also flush the MAC address table using the command `s1 bridge fdb flush br s1`.
 
 ### Verifying Switch Functionality with Wireshark
 
@@ -272,7 +272,7 @@ router = self.addHost('router', ip=None, cls=Router)
 
 > Hint: Because the home router has multiple interfaces, you should not assign an IP address when creating the host. We need to set the `ip` parameter to `None` to prevent Mininet from assigning an IP address to the host's first interface; you will assign IP addresses to all interfaces manually later using the `addLink` method and the `params1` or `params2` parameters.
 
-> **Your task**: Modify the provided topology file to recreate the topology in Figure 12. Your topology file should define all necessary hosts with the correct names and IP addresses, and connect them to the appropriate switches via separate links. 
+> **Your task**: Modify the provided topology file to recreate the topology in Figure 12. Your topology file should define all necessary hosts with the correct names and IP addresses, and connect them to the appropriate switches via separate links.
 
 Your topology should also configure routing on the individual hosts so they know how to send packets destined for Internet services via the `router` hosts. You can set the default route for each host using the `default` parameter of the `addHost` method. For example, to set the default route for the host `homePC` to point to the router's interface in the home network, you can use the following code snippet:
 
@@ -316,9 +316,9 @@ mininet> homePC ip route show
 
 ## Task 5: Understanding NAT on the Router
 
-In the previous task, we extended our Mininet topology to include two routers and two Internet services. The router allowed hosts in the home network to communicate with these services by forwarding packets between different networks. However, in a real-world scenario, home networks typically use private IP addresses that are not routable on the public Internet. To enable communication between devices in a private network and the public Internet, we need to implement Network Address Translation (NAT) on the router. 
+In the previous task, we extended our Mininet topology to include two routers and two Internet services. The router allowed hosts in the home network to communicate with these services by forwarding packets between different networks. However, in a real-world scenario, home networks typically use private IP addresses that are not routable on the public Internet. To enable communication between devices in a private network and the public Internet, we need to implement Network Address Translation (NAT) on the router.
 
-NAT is a technique that allows multiple devices in a private network to share a single public IP address when accessing the Internet. It works by modifying the source IP address and port number of outgoing packets from devices in the private network to the public IP address and a unique port number assigned by the router. When the response packets return from the Internet, the router translates the destination IP address and port number back to the original private IP address and port number of the device that initiated the request. NAT is used to solve two main problems in the global Internet: IP exhaustion and network security. Using a NAT, devices on the home network require only a single public IPv4 address to forward traffic. The explosion in Internet use has made public IPv4 addresses a scarce resource, and NAT services are currently the sticky tape that keeps the Internet together, as we transition to IPv6, which offers a much larger address pool. Using a NAT has an additional benefit. All hosts behind a NAT are not globally accessible from external IP addresses, thereby reducing their exposure to network attacks. To access an Internet service from a host on the home network, the host must initiate a connection (i.e., send a TCP SYN packet). Any incoming packet from the Internet, initiated by a connection not originating from an internal host, will be dropped by a NAT. Small micro-controllers used to support the IoT devices in our home network rely on this property to reduce the amount of computing they need ot secure themselves against Internet threats. 
+NAT is a technique that allows multiple devices in a private network to share a single public IP address when accessing the Internet. It works by modifying the source IP address and port number of outgoing packets from devices in the private network to the public IP address and a unique port number assigned by the router. When the response packets return from the Internet, the router translates the destination IP address and port number back to the original private IP address and port number of the device that initiated the request. NAT is used to solve two main problems in the global Internet: IP exhaustion and network security. Using a NAT, devices on the home network require only a single public IPv4 address to forward traffic. The explosion in Internet use has made public IPv4 addresses a scarce resource, and NAT services are currently the sticky tape that keeps the Internet together, as we transition to IPv6, which offers a much larger address pool. Using a NAT has an additional benefit. All hosts behind a NAT are not globally accessible from external IP addresses, thereby reducing their exposure to network attacks. To access an Internet service from a host on the home network, the host must initiate a connection (i.e., send a TCP SYN packet). Any incoming packet from the Internet, initiated by a connection not originating from an internal host, will be dropped by a NAT. Small micro-controllers used to support the IoT devices in our home network rely on this property to reduce the amount of computing they need ot secure themselves against Internet threats.
 
 The Linux OS provides built-in support for NAT via `iptables`, a powerful firewall and packet-filtering tool. To enable NAT on the `router` host in our Mininet topology, we need to configure iptables to perform source NAT (SNAT) for outgoing packets from the home network to the Internet services. You can enable NAT on the router host by running the following commands in the Mininet CLI:
 
