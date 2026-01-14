@@ -18,6 +18,6 @@ output/lab-material.zip: topology.py server.py solution/Makefile .devcontainer.j
 	mkdir -p output
 	zip -j output/lab-material.zip topology.py server.py solution/Makefile .devcontainer.json
 
-clean:
+clean-doc:
 	rm -f output/*.html
 	rmdir -p output 2>/dev/null || true
