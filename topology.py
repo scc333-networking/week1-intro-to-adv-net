@@ -1,10 +1,23 @@
 from mininet.topo import Topo
 from mininet.net import Mininet
-from mininet.node import OVSController
+from mininet.node import OVSController, Node
 from mininet.cli import CLI
 from mininet.link import TCLink
 from mininet.log import setLogLevel
 from mininet.nodelib import LinuxBridge
+
+
+class Router(Node):
+    def config(self, **params):
+        super(Router, self).config(**params)
+        if 'routes' in params:
+            for (ip, gateway) in params['routes']:
+                self.cmd('ip route add {} via {}'.format(ip, gateway))
+        self.cmd('sysctl net.ipv4.ip_forward=1')
+
+    def terminate(self):
+        self.cmd('sysctl net.ipv4.ip_forward=0')
+        super(Router, self).terminate()
 
 
 class LabTopology(Topo):
@@ -15,7 +28,7 @@ class LabTopology(Topo):
         s1 = self.addSwitch("s1")
 
         # Create two hosts
-        h1 = self.addHost("h1")
+        h1 = self.addHost("h1", cls=Router)
         h2 = self.addHost("h2")
 
         # Connect hosts to the switch
